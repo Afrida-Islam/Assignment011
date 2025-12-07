@@ -1,12 +1,14 @@
 import React from "react";
 import HeroBanner from "../Components/HeroBanner";
-import CanaGateSection from "../Components/CanaGateSection";
+
+import CanaGatePage from "../Components/CanaGatePage";
 
 const Home = () => {
   return (
     <div>
       <HeroBanner></HeroBanner>
-      <CanaGateSection></CanaGateSection>
+
+      <CanaGatePage></CanaGatePage>
     </div>
   );
 };
