@@ -12,7 +12,7 @@ import { AiFillBank } from "react-icons/ai";
 const Footer = () => {
   return (
     <div>
-      <footer className="bg-green-800  text-gray-300 py-20">
+      <footer className="bg-green-900  text-gray-300 py-20">
         <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-10">
           <div>
             <h2 className="text-white text-2xl font-bold flex items-center">
@@ -119,7 +119,7 @@ const Footer = () => {
         </div>
 
         {/* Bottom text */}
-        <div className="text-center text-gray-500 text-sm mt-10 border-t border-gray-800 pt-4">
+        <div className="text-center text-white text-sm mt-10 border-t border-gray-800 pt-4">
           © 2025 SkillSet. All rights reserved.
         </div>
       </footer>
