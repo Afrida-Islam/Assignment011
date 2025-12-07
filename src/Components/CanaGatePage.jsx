@@ -1,4 +1,7 @@
 import React, { useState } from "react";
+// 1. Import motion, AnimatePresence
+import { motion, AnimatePresence } from "framer-motion";
+
 // Assuming these imports are correctly set up in your local file structure
 import img1 from "../assets/download (1).jpeg";
 import img2 from "../assets/download (2).jpeg";
@@ -8,11 +11,23 @@ import img5 from "../assets/download (4).jpeg";
 import img6 from "../assets/images (5).jpeg";
 import img7 from "../assets/download (5).jpeg";
 
+// Animation Variants for Feature Cards
+const featureCardVariants = {
+  hidden: { opacity: 0, y: 50 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { type: "spring", stiffness: 100, damping: 20 },
+  },
+};
+
+// FeatureCard Component - Now a motion component
 const FeatureCard = ({ imageSrc, icon, title, description, isReversed }) => (
-  <div
+  <motion.div
     className={`flex flex-col gap-4 p-4 ${
       isReversed ? "md:flex-row-reverse" : "md:flex-row"
     } items-center`}
+    variants={featureCardVariants}
   >
     <div className="w-full md:w-1/2 rounded-xl overflow-hidden shadow-lg relative">
       <img
@@ -39,9 +54,16 @@ const FeatureCard = ({ imageSrc, icon, title, description, isReversed }) => (
       </div>
       <p className="text-sm text-gray-800">{description}</p>
     </div>
-  </div>
+  </motion.div>
 );
 
+// Animation for FAQ content (using height auto)
+const faqContentVariants = {
+  open: { opacity: 1, height: "auto", paddingBottom: "1rem", paddingTop: 0 },
+  collapsed: { opacity: 0, height: 0, paddingBottom: 0, paddingTop: 0 },
+};
+
+// FAQItem Component - Using Framer Motion for smooth accordion
 const FAQItem = ({ question, answer, isOpen, onClick }) => (
   <div className="bg-green-800/80 rounded-lg mb-2 overflow-hidden">
     <button
@@ -56,21 +78,56 @@ const FAQItem = ({ question, answer, isOpen, onClick }) => (
       </span>
 
       <span className={`text-2xl ${isOpen ? "text-green-400" : "text-white"}`}>
-        {isOpen ? "−" : "+"}
+        {/* Simple motion for the icon rotation */}
+        <motion.span
+          animate={{ rotate: isOpen ? 45 : 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          +
+        </motion.span>
       </span>
     </button>
-
-    <div
-      className={`overflow-hidden transition-all duration-500 ${
-        isOpen ? "max-h-96 opacity-100 pb-4 pt-0" : "max-h-0 opacity-0"
-      }`}
-    >
-      <p className="text-sm text-gray-800 pr-6 border-l-4 border-orange-400 pl-6 mx-6">
-        {answer}
-      </p>
-    </div>
+    
+    {/* Use AnimatePresence to ensure the motion.div is unmounted when closed */}
+    <AnimatePresence initial={false}>
+      {isOpen && (
+        <motion.div
+          key="content"
+          initial="collapsed"
+          animate="open"
+          exit="collapsed"
+          variants={faqContentVariants}
+          transition={{ duration: 0.5, ease: [0.04, 0.62, 0.23, 0.98] }}
+        >
+          <p className="text-sm text-gray-800 pr-6 border-l-4 border-orange-400 pl-6 mx-6">
+            {answer}
+          </p>
+        </motion.div>
+      )}
+    </AnimatePresence>
   </div>
 );
+
+// Variants for the stacked images
+const imageStackVariants = {
+  hidden: { opacity: 0, scale: 0.9 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    transition: {
+      type: "spring",
+      stiffness: 70,
+      staggerChildren: 0.2,
+      delayChildren: 0.3,
+    },
+  },
+};
+
+// Variants for individual images within the stack
+const individualImageVariants = {
+  hidden: { opacity: 0, x: -20, y: 20 },
+  visible: { opacity: 1, x: 0, y: 0 },
+};
 
 const CanaGatePage = () => {
   const [openFAQ, setOpenFAQ] = useState(
@@ -105,19 +162,33 @@ const CanaGatePage = () => {
     },
   ];
 
+  // Variants for the entire FAQ list to fade in
+  const faqListVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { delay: 0.5, duration: 0.8 } },
+  };
+
   return (
     <div className="bg-white text-white min-h-screen">
+      {/* -------------------- FEATURES SECTION -------------------- */}
       <div className="py-16 px-4 md:px-8">
-        <h2 className="text-3xl md:text-4xl font-extrabold text-white text-center mb-12">
+        <h2 className="text-3xl md:text-4xl font-extrabold text-gray-800 text-center mb-12">
           Why Apply on CanaGate?
         </h2>
 
-        <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-x-16 gap-y-12">
+        {/* Use motion.div for the container to apply staggerChildren */}
+        <motion.div
+          className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-x-16 gap-y-12"
+          initial="hidden"
+          whileInView="visible" // Animate when the element scrolls into view
+          viewport={{ once: true, amount: 0.2 }} // Only animate once
+          transition={{ staggerChildren: 0.2 }}
+        >
           <FeatureCard
             imageSrc={img1}
             icon="⭐"
             title="Free Service"
-            description="Free Service Free Service Experience ethical and accessible Free Free Free Free Service Free Service Free Service Free."
+            description="Experience ethical and accessible Free Free Free Free Service Free Service Free Service Free."
             isReversed={false}
           />
 
@@ -144,38 +215,71 @@ const CanaGatePage = () => {
             description="Thousands of students Thousands students Thousands Thousands The Thousands The Thousands The Thousands."
             isReversed={true}
           />
-        </div>
+        </motion.div>
       </div>
+      
+      {/* -------------------- FAQ SECTION -------------------- */}
       <div className="py-16 px-4 md:px-8">
         <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-12">
+          
+          {/* Animated Image Stack */}
           <div className="relative w-full lg:w-1/2 flex justify-center lg:justify-start">
-            <div className="relative w-[350px] h-[550px]">
-              <img
+            <motion.div
+              className="relative w-[350px] h-[550px]"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.3 }}
+              variants={imageStackVariants}
+            >
+              <motion.img
                 src={img6}
                 alt="Cityscape"
                 className="absolute top-0 left-0 w-64 h-40 object-cover rounded-lg shadow-2xl z-10"
+                variants={individualImageVariants}
               />
-              <img
+              <motion.img
                 src={img5}
                 alt="Students Group"
                 className="absolute top-20 left-20 w-64 h-48 object-cover rounded-lg shadow-2xl z-20"
+                variants={individualImageVariants}
               />
-              <img
+              <motion.img
                 src={img7}
                 alt="Autumn Campus"
                 className="absolute bottom-0 left-0 w-80 h-60 object-cover rounded-lg shadow-2xl z-30"
+                variants={individualImageVariants}
               />
-              <div className="absolute bottom-10 right-10 z-40 bg-green-500 p-4 rounded-full shadow-lg">
-                <span className="text-white text-3xl">🎓</span>
-              </div>
-            </div>
+              {/* Spinning/Animating Icon */}
+              <motion.div
+                className="absolute bottom-10 right-10 z-40 bg-green-500 p-4 rounded-full shadow-lg"
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", stiffness: 100, delay: 1 }}
+              >
+                <motion.span 
+                  className="text-white text-3xl"
+                  animate={{ rotate: 360 }}
+                  transition={{ repeat: Infinity, duration: 10, ease: "linear" }}
+                >
+                  🎓
+                </motion.span>
+              </motion.div>
+            </motion.div>
           </div>
+          
+          {/* Animated FAQ List */}
           <div className="w-full lg:w-1/2">
             <h2 className="text-3xl md:text-4xl font-extrabold text-orange-600 mb-8">
               Frequently Asked Questions
             </h2>
-            <div className="space-y-3">
-              {faqData.map((item, index) => (
+            <motion.div 
+              className="space-y-3"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.1 }}
+              variants={faqListVariants}
+            >
+              {faqData.map((item) => (
                 <FAQItem
                   key={item.question}
                   question={item.question}
@@ -186,10 +290,16 @@ const CanaGatePage = () => {
                   }
                 />
               ))}
-            </div>
+            </motion.div>
 
-            <div className="flex justify-center mt-6">
-              <span className="text-3xl text-gray-500 animate-bounce">
+            {/* Animated SVG */}
+            <motion.div 
+              className="flex justify-center mt-6"
+              initial={{ y: -10, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ repeat: Infinity, duration: 1.5, repeatType: "reverse" }}
+            >
+              <span className="text-3xl text-gray-500">
                 <svg
                   className="w-6 h-6"
                   fill="none"
@@ -205,7 +315,7 @@ const CanaGatePage = () => {
                   ></path>
                 </svg>
               </span>
-            </div>
+            </motion.div>
           </div>
         </div>
       </div>
