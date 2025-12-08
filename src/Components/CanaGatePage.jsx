@@ -87,7 +87,7 @@ const FAQItem = ({ question, answer, isOpen, onClick }) => (
         </motion.span>
       </span>
     </button>
-    
+
     {/* Use AnimatePresence to ensure the motion.div is unmounted when closed */}
     <AnimatePresence initial={false}>
       {isOpen && (
@@ -170,18 +170,16 @@ const CanaGatePage = () => {
 
   return (
     <div className="bg-white text-white min-h-screen">
-      {/* -------------------- FEATURES SECTION -------------------- */}
       <div className="py-16 px-4 md:px-8">
-        <h2 className="text-3xl md:text-4xl font-extrabold text-gray-800 text-center mb-12">
+        <h2 className="text-6xl md:text-4xl font-extrabold text-green-900 text-center mb-12">
           Why Apply on CanaGate?
         </h2>
 
-        {/* Use motion.div for the container to apply staggerChildren */}
         <motion.div
           className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-x-16 gap-y-12"
           initial="hidden"
-          whileInView="visible" // Animate when the element scrolls into view
-          viewport={{ once: true, amount: 0.2 }} // Only animate once
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2 }}
           transition={{ staggerChildren: 0.2 }}
         >
           <FeatureCard
@@ -217,12 +215,9 @@ const CanaGatePage = () => {
           />
         </motion.div>
       </div>
-      
-      {/* -------------------- FAQ SECTION -------------------- */}
+
       <div className="py-16 px-4 md:px-8">
         <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-12">
-          
-          {/* Animated Image Stack */}
           <div className="relative w-full lg:w-1/2 flex justify-center lg:justify-start">
             <motion.div
               className="relative w-[350px] h-[550px]"
@@ -256,23 +251,27 @@ const CanaGatePage = () => {
                 animate={{ scale: 1 }}
                 transition={{ type: "spring", stiffness: 100, delay: 1 }}
               >
-                <motion.span 
+                <motion.span
                   className="text-white text-3xl"
                   animate={{ rotate: 360 }}
-                  transition={{ repeat: Infinity, duration: 10, ease: "linear" }}
+                  transition={{
+                    repeat: Infinity,
+                    duration: 10,
+                    ease: "linear",
+                  }}
                 >
                   🎓
                 </motion.span>
               </motion.div>
             </motion.div>
           </div>
-          
+
           {/* Animated FAQ List */}
           <div className="w-full lg:w-1/2">
             <h2 className="text-3xl md:text-4xl font-extrabold text-orange-600 mb-8">
               Frequently Asked Questions
             </h2>
-            <motion.div 
+            <motion.div
               className="space-y-3"
               initial="hidden"
               whileInView="visible"
@@ -293,11 +292,15 @@ const CanaGatePage = () => {
             </motion.div>
 
             {/* Animated SVG */}
-            <motion.div 
+            <motion.div
               className="flex justify-center mt-6"
               initial={{ y: -10, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              transition={{ repeat: Infinity, duration: 1.5, repeatType: "reverse" }}
+              transition={{
+                repeat: Infinity,
+                duration: 1.5,
+                repeatType: "reverse",
+              }}
             >
               <span className="text-3xl text-gray-500">
                 <svg

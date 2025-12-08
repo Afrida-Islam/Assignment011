@@ -3,6 +3,8 @@ import MainLayout from "../Layouts/MainLayout";
 import Login from "../Pages/Login";
 import Register from "../Pages/Register";
 import Home from "../Pages/Home";
+
+import Allscholarship from "../Components/Allscholarship";
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -19,6 +21,11 @@ export const router = createBrowserRouter([
       {
         path: "/register",
         Component: Register,
+      },
+      {
+        path: "/scholarships",
+        Component: Allscholarship,
+        loader: () => fetch("http://localhost:3000/data"),
       },
     ],
   },

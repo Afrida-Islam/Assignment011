@@ -1,23 +1,20 @@
 import React from "react";
 // 1. Import motion from framer-motion
 import { motion } from "framer-motion";
-import ScholarshipCard from "./ScholarshipCard";
+import BannerCard from "../Components/BannerCard";
 import bannerImg from "../assets/bannerImg.jpeg";
 
 const HeroBanner = () => {
-  
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
       transition: {
-     
         staggerChildren: 0.1,
-        delayChildren: 0.2, 
+        delayChildren: 0.2,
       },
     },
   };
-
 
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -31,7 +28,6 @@ const HeroBanner = () => {
     },
   };
 
-
   const imageVariants = {
     hidden: { opacity: 0, scale: 0.9, x: 50 },
     visible: {
@@ -41,7 +37,7 @@ const HeroBanner = () => {
       transition: {
         type: "spring",
         stiffness: 50,
-        delay: 0.4, 
+        delay: 0.4,
       },
     },
   };
@@ -55,16 +51,14 @@ const HeroBanner = () => {
       transition: {
         type: "spring",
         stiffness: 80,
-        delay: 0.6, 
+        delay: 0.6,
       },
     },
   };
 
   return (
-    
     <section className="bg-white py-16 lg:py-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-       
         <motion.div
           className="lg:grid lg:grid-cols-2 lg:gap-12 items-center"
           variants={containerVariants}
@@ -72,7 +66,6 @@ const HeroBanner = () => {
           animate="visible"
         >
           <div className="mb-10 lg:mb-0">
-            
             <motion.h1
               className="text-5xl sm:text-5xl lg:text-6xl font-bold text-gray-800 leading-tight mb-6"
               variants={itemVariants} // Apply item variants
@@ -119,7 +112,7 @@ const HeroBanner = () => {
               className="absolute -bottom-4 lg:-right-4 right-0 transform translate-y-1/2 lg:translate-y-0 lg:translate-x-1/4"
               variants={cardVariants} // Apply card variants
             >
-              <ScholarshipCard />
+              <BannerCard />
             </motion.div>
           </div>
         </motion.div>
