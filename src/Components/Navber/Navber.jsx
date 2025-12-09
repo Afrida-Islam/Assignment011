@@ -1,104 +1,105 @@
-import React, { useState } from "react";
-
-import logo from "../../assets/logo.webp";
+import Container from "./Container";
+import { AiOutlineMenu } from "react-icons/ai";
+import { useState } from "react";
 import { Link } from "react-router";
-const Navber = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const user = {
-    profileImg: "https://i.pravatar.cc/150?img=1",
-    name: "User",
-  };
-
-  const handleLogin = () => setIsLoggedIn(true);
-  const handleLogout = () => setIsLoggedIn(false);
-
-  // --- Always Visible Links ---
-  const alwaysVisibleLinks = [
-    { name: "Home", path: "/" },
-    { name: "All Scholarships", path: "/scholarships" },
-  ];
+import useAuth from "../../hooks/useAuth";
+import avatarImg from "../../assets/download (1).jpeg";
+import logo from "../../assets/logo.webp";
+const Navbar = () => {
+  const { user, logOut } = useAuth();
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <nav className="bg-white shadow-md sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-25">
-          <div className="flex-shrink-0">
-            <div className="flex items-center space-x-2">
-              <img className="w-[90px] h-[90px]" src={logo}></img>
-              <div className="text-green-800  text-xl leading-none font-bold ">
-                <p>National</p>
-                <p>Scholarship</p>
-                <p>Trust</p>
+    <div className="fixed w-full bg-white z-10 shadow-sm">
+      <div className="py-4 ">
+        <Container>
+          <div className="flex flex-row  items-center justify-between gap-3 md:gap-0">
+            <div className="flex-shrink-0">
+              <div className="flex items-center space-x-2">
+                <img className="w-[90px] h-[90px]" src={logo}></img>
+                <div className="text-green-800  text-xl leading-none font-bold ">
+                  <p>National</p>
+                  <p>Scholarship</p>
+                  <p>Trust</p>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="flex items-center  space-x-4">
-            <div className="hidden md:flex  ">
-              {alwaysVisibleLinks.map((link) => (
-                <div className="flex justify-center items-center ">
-                  <a
-                    key={link.name}
-                    href={link.path}
-                    className="text-green-800  text-xl font-bold hover:text-green-700    transition duration-150 p-10 text-center "
-                  >
-                    {link.name}
-                  </a>
-                </div>
-              ))}
-            </div>
-
-            <div className="flex items-center space-x-4">
-              {isLoggedIn ? (
-                <>
-                  <Link
-                    to={`/dashboard`}
-                    className="text-green-800 hover:text-green-700 text-xl font-bold"
-                  >
-                    Dashboard
-                  </Link>
-
-                  <div className="relative">
-                    <button className="flex items-center focus:outline-none">
-                      <img
-                        className="h-8 w-8 rounded-full object-cover border-2 border-green-500"
-                        src={user.profileImg}
-                        alt={`${user.name} profile`}
-                      />
-                    </button>
+            <div className="relative">
+              <div className="flex flex-row items-center gap-3">
+                <div
+                  onClick={() => setIsOpen(!isOpen)}
+                  className="p-4 md:py-5 md:px-5 border border-neutral-200 flex flex-row items-center gap-3 rounded-full cursor-pointer hover:shadow-md transition"
+                >
+                  <AiOutlineMenu />
+                  <div className="hidden md:block">
+                    <img
+                      className="rounded-full"
+                      referrerPolicy="no-referrer"
+                      src={user && user.photoURL ? user.photoURL : avatarImg}
+                      alt="profile"
+                      height="80"
+                      width="80"
+                    />
                   </div>
-
-                  <button
-                    onClick={handleLogout}
-                    className="px-3 py-1 text-sm bg-red-500 text-white rounded-md hover:bg-red-600 transition"
-                  >
-                    Logout
-                  </button>
-                </>
-              ) : (
-                <>
-                  <Link to={`/login`}>
-                    <button
-                      onClick={handleLogin}
-                      className="text-green-800 hover:text-green-700 text-xl  font-bold"
+                </div>
+              </div>
+              {isOpen && (
+                <div className="absolute rounded-xl shadow-md w-[40vw] md:w-[10vw] bg-white overflow-hidden right-0 top-12 text-sm">
+                  <div className="flex flex-col cursor-pointer">
+                    <Link
+                      to="/"
+                      className="block md:hidden px-4 py-3 hover:bg-neutral-100 transition font-semibold"
                     >
-                      Login
-                    </button>
-                  </Link>
-                  <Link
-                    to="/register" // Link to the registration page
-                    className="px-3 py-1 text-xl  font-bold bg-green-600 text-white rounded-md hover:bg-green-700 transition"
-                  >
-                    Register
-                  </Link>
-                </>
+                      Home
+                    </Link>
+                    <Link
+                      to="/scholarships"
+                      className="block md:hidden px-4 py-3 hover:bg-neutral-100 transition font-semibold"
+                    >
+                      All Scholarship
+                    </Link>
+
+                    {user ? (
+                      <>
+                        <Link
+                          to="/dashboard"
+                          className="px-4 py-3 hover:bg-neutral-100 transition font-semibold"
+                        >
+                          Dashboard
+                        </Link>
+                        <div
+                          onClick={logOut}
+                          className="px-4 py-3 hover:bg-neutral-100 transition font-semibold cursor-pointer"
+                        >
+                          Logout
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <Link
+                          to="/login"
+                          className="px-4 py-3 hover:bg-neutral-100 transition font-semibold"
+                        >
+                          Login
+                        </Link>
+                        <Link
+                          to="/signup"
+                          className="px-4 py-3 hover:bg-neutral-100 transition font-semibold"
+                        >
+                          Sign Up
+                        </Link>
+                      </>
+                    )}
+                  </div>
+                </div>
               )}
             </div>
           </div>
-        </div>
+        </Container>
       </div>
-    </nav>
+    </div>
   );
 };
 
-export default Navber;
+export default Navbar;

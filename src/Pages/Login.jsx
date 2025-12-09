@@ -16,7 +16,6 @@ const Login = () => {
   if (loading) return <LoadingSpinner />;
   if (user) return <Navigate to={from} replace={true} />;
 
-  // form submit handler
   const handleSubmit = async (event) => {
     event.preventDefault();
     const form = event.target;
@@ -24,7 +23,6 @@ const Login = () => {
     const password = form.password.value;
 
     try {
-      //User Login
       const { user } = await signIn(email, password);
 
       await saveOrUpdateUser({
@@ -41,12 +39,9 @@ const Login = () => {
     }
   };
 
-  // Handle Google Signin
   const handleGoogleSignIn = async () => {
     try {
-      //User Registration using google
       const { user } = await signInWithGoogle();
-
       await saveOrUpdateUser({
         name: user?.displayName,
         email: user?.email,
@@ -62,14 +57,13 @@ const Login = () => {
   };
   return (
     <div className="flex justify-center items-center min-h-screen bg-white">
-      <div className="flex flex-col max-w-md p-6 rounded-md sm:p-10 bg-gray-100 text-gray-900">
+      <div className="flex flex-col max-w-md p-6 rounded-md sm:p-10 bg-green-100 text-green-900">
         <div className="mb-8 text-center">
           <h1 className="my-3 text-4xl font-bold">Log In</h1>
           <p className="text-sm text-gray-400">
             Sign in to access your account
           </p>
         </div>
-        {/* Login Form */}
         <form
           onSubmit={handleSubmit}
           noValidate=""
