@@ -51,12 +51,12 @@ const Navber = () => {
             <div className="flex items-center space-x-4">
               {isLoggedIn ? (
                 <>
-                  <a
-                    href="/dashboard"
+                  <Link
+                   to={`/dashboard`}
                     className="text-green-800 hover:text-green-700 text-xl font-bold"
                   >
                     Dashboard
-                  </a>
+                  </Link>
 
                   <div className="relative">
                     <button className="flex items-center focus:outline-none">

@@ -1,174 +1,162 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router";
-import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 
-import { Link } from "react-router";
-
-import {
-  signInWithEmailAndPassword,
-  GoogleAuthProvider,
-  signInWithPopup,
-} from "firebase/auth";
-import { auth } from "../firebase/firebase.config";
+import { Link, Navigate, useLocation, useNavigate } from 'react-router'
+import toast from 'react-hot-toast'
+import LoadingSpinner from '../Components/LoadingSpinner'
+import useAuth from '../Context/AutoComplete'
+import { FcGoogle } from 'react-icons/fc'
+import { TbFidgetSpinner } from 'react-icons/tb'
+import { saveOrUpdateUser } from '../../utils'
 
 const Login = () => {
-  const [showPassword, setShowPassword] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const navigate = useNavigate();
+  const { signIn, signInWithGoogle, loading, user, setLoading } = useAuth()
+  const navigate = useNavigate()
+  const location = useLocation()
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    signInWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
-        // Signed in
+  const from = location.state || '/'
 
-        navigate("/");
+  if (loading) return <LoadingSpinner />
+  if (user) return <Navigate to={from} replace={true} />
+
+  // form submit handler
+  const handleSubmit = async event => {
+    event.preventDefault()
+    const form = event.target
+    const email = form.email.value
+    const password = form.password.value
+
+    try {
+      //User Login
+      const { user } = await signIn(email, password)
+
+      await saveOrUpdateUser({
+        name: user?.displayName,
+        email: user?.email,
+        image: user?.photoURL,
       })
-      .catch((error) => {
-        const errorMessage = error.message;
-        setError(errorMessage);
-      });
-  };
 
-  const handleGoogleLogin = () => {
-    const provider = new GoogleAuthProvider();
+      navigate(from, { replace: true })
+      toast.success('Login Successful')
+    } catch (err) {
+      console.log(err)
+      toast.error(err?.message)
+    }
+  }
 
-    signInWithPopup(auth, provider)
-      .then((result) => {
-        const credential = GoogleAuthProvider.credentialFromResult(result);
-        const token = credential.accessToken;
+  // Handle Google Signin
+  const handleGoogleSignIn = async () => {
+    try {
+      //User Registration using google
+      const { user } = await signInWithGoogle()
 
-        const user = result.user;
-
-        navigate("/");
+      await saveOrUpdateUser({
+        name: user?.displayName,
+        email: user?.email,
+        image: user?.photoURL,
       })
-      .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-
-        const email = error.customData.email;
-
-        const credential = GoogleAuthProvider.credentialFromError(error);
-        setError(errorMessage);
-      });
-  };
-  // const handleGoogleSignIn = () => {};
+      navigate(from, { replace: true })
+      toast.success('Login Successful')
+    } catch (err) {
+      console.log(err)
+      setLoading(false)
+      toast.error(err?.message)
+    }
+  }
   return (
-    <>
-      <div className="min-h-screen bg-lime-100/50 flex items-center justify-center p-4 mt-3">
+    <div className='flex justify-center items-center min-h-screen bg-white'>
+      <div className='flex flex-col max-w-md p-6 rounded-md sm:p-10 bg-gray-100 text-gray-900'>
+        <div className='mb-8 text-center'>
+          <h1 className='my-3 text-4xl font-bold'>Log In</h1>
+          <p className='text-sm text-gray-400'>
+            Sign in to access your account
+          </p>
+        </div>
+        {/* Login Form */}
         <form
           onSubmit={handleSubmit}
-          className="bg-white shadow-lg rounded-2xl p-8 w-full max-w-md border border-gray-100"
+          noValidate=''
+          action=''
+          className='space-y-6 ng-untouched ng-pristine ng-valid'
         >
-          <h2 className="text-2xl font-bold text-center text-orange-500 mb-6">
-            Login to SkillSet
-          </h2>
-
-          {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-4">
-              {error}
-            </div>
-          )}
-
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Email Address
-            </label>
-            <div className="flex items-center border border-gray-300 rounded-lg px-3">
-              <Mail className="w-4 h-4 text-gray-400" />
+          <div className='space-y-4'>
+            <div>
+              <label htmlFor='email' className='block mb-2 text-sm'>
+                Email address
+              </label>
               <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
-                className="w-full p-2 outline-none text-gray-700"
+                type='email'
+                name='email'
+                id='email'
                 required
+                placeholder='Enter Your Email Here'
+                className='w-full px-3 py-2 border rounded-md border-gray-300 focus:outline-lime-500 bg-gray-200 text-gray-900'
+                data-temp-mail-org='0'
+              />
+            </div>
+            <div>
+              <div className='flex justify-between'>
+                <label htmlFor='password' className='text-sm mb-2'>
+                  Password
+                </label>
+              </div>
+              <input
+                type='password'
+                name='password'
+                autoComplete='current-password'
+                id='password'
+                required
+                placeholder='*******'
+                className='w-full px-3 py-2 border rounded-md border-gray-300 focus:outline-lime-500 bg-gray-200 text-gray-900'
               />
             </div>
           </div>
 
-          {/* Password */}
-          <div className="mb-2">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Password
-            </label>
-            <div className="flex items-center border border-gray-300 rounded-lg px-3">
-              <Lock className="w-4 h-4 text-gray-400" />
-              <input
-                type={showPassword ? "text" : "password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter your password"
-                className="w-full p-2 outline-none text-gray-700"
-                required
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                {showPassword ? (
-                  <EyeOff className="w-4 h-4" />
-                ) : (
-                  <Eye className="w-4 h-4" />
-                )}
-              </button>
-            </div>
-          </div>
-
-          <div className="text-right mb-4">
-            <Link to="/resetpasswort">
-              <span className="text-sm text-orange-400 hover:underline">
-                Forgot Password?
-              </span>
-            </Link>
-          </div>
-
-          {/* Login Button */}
-          <button
-            type="submit"
-            className="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 rounded-lg transition"
-          >
-            Login
-          </button>
-
-          {/* Divider */}
-          <div className="my-4 flex items-center">
-            <div className="flex-grow h-px bg-gray-300"></div>
-            <span className="px-3 text-gray-500 text-sm">OR</span>
-            <div className="flex-grow h-px bg-gray-300"></div>
-          </div>
-
-          {/* Google Login */}
-          <button
-            type="button"
-            onClick={handleGoogleLogin}
-            className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center justify-center gap-2 font-medium transition"
-          >
-            <img
-              src="https://www.svgrepo.com/show/475656/google-color.svg"
-              alt="Google"
-              className="w-5 h-5"
-            />
-            Sign in with Google
-          </button>
-
-          {/* Sign Up Link */}
-          <p className="text-sm text-center text-gray-600 mt-4">
-            Don’t have an account?{" "}
-            <a
-              href="/register"
-              className="text-green-700 hover:underline font-medium"
+          <div>
+            <button
+              type='submit'
+              className='bg-lime-500 w-full rounded-md py-3 text-white'
             >
-              Sign Up
-            </a>
-          </p>
+              {loading ? (
+                <TbFidgetSpinner className='animate-spin m-auto' />
+              ) : (
+                'Continue'
+              )}
+            </button>
+          </div>
         </form>
-      </div>
-    </>
-  );
-};
+        <div className='space-y-1'>
+          <button className='text-xs hover:underline hover:text-lime-500 text-gray-400 cursor-pointer'>
+            Forgot password?
+          </button>
+        </div>
+        <div className='flex items-center pt-4 space-x-1'>
+          <div className='flex-1 h-px sm:w-16 dark:bg-gray-700'></div>
+          <p className='px-3 text-sm dark:text-gray-400'>
+            Login with social accounts
+          </p>
+          <div className='flex-1 h-px sm:w-16 dark:bg-gray-700'></div>
+        </div>
+        <div
+          onClick={handleGoogleSignIn}
+          className='flex justify-center items-center space-x-2 border m-3 p-2 border-gray-300 border-rounded cursor-pointer'
+        >
+          <FcGoogle size={32} />
 
-export default Login;
+          <p>Continue with Google</p>
+        </div>
+        <p className='px-6 text-sm text-center text-gray-400'>
+          Don&apos;t have an account yet?{' '}
+          <Link
+            state={from}
+            to='/signup'
+            className='hover:underline hover:text-lime-500 text-gray-600'
+          >
+            Sign up
+          </Link>
+          .
+        </p>
+      </div>
+    </div>
+  )
+}
+
+export default Login
