@@ -52,7 +52,7 @@ const Navber = () => {
               {isLoggedIn ? (
                 <>
                   <Link
-                   to={`/dashboard`}
+                    to={`/dashboard`}
                     className="text-green-800 hover:text-green-700 text-xl font-bold"
                   >
                     Dashboard
@@ -77,8 +77,7 @@ const Navber = () => {
                 </>
               ) : (
                 <>
-                  <Link to="/login">
-                    {" "}
+                  <Link to={`/login`}>
                     <button
                       onClick={handleLogin}
                       className="text-green-800 hover:text-green-700 text-xl  font-bold"

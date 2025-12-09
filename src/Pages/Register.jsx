@@ -1,212 +1,267 @@
-import React, { useState } from "react";
-import { Eye, EyeOff, Mail, User, Lock } from "lucide-react";
-
-import { useNavigate } from "react-router";
-import { Link } from "react-router";
-
-import {
-  createUserWithEmailAndPassword,
-  GoogleAuthProvider,
-  signInWithPopup,
-} from "firebase/auth";
-import { auth } from "../firebase/firebase.config"; // ✅ import actual Firebase auth
+import { Link, useLocation, useNavigate } from "react-router";
+import { FcGoogle } from "react-icons/fc";
+import useAuth from "../hooks/useAuth";
+import { toast } from "react-hot-toast";
+import { TbFidgetSpinner } from "react-icons/tb";
+import { useForm } from "react-hook-form";
+// import { imageUpload, saveOrUpdateUser } from "../../utils";
 
 const Register = () => {
-  const [showPassword, setShowPassword] = useState(false);
-  const [password, setPassword] = useState("");
-  const [email, setEmail] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [error, setError] = useState("");
+  const { createUser, updateUserProfile, signInWithGoogle, loading } =
+    useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state || "/";
 
-  const validations = {
-    length: password.length >= 6,
-    upper: /[A-Z]/.test(password),
-    lower: /[a-z]/.test(password),
+  // React Hook Form
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
+
+  console.log(errors);
+  const onSubmit = async (data) => {
+    const { name, image, email, password } = data;
+    const imageFile = image[0];
+    // const formData = new FormData()
+    // formData.append('image', imageFile)
+
+    try {
+      // const { data } = await axios.post(
+      //   `https://api.imgbb.com/1/upload?key=${
+      //     import.meta.env.VITE_IMGBB_API_KEY
+      //   }`,
+      //   formData
+      // )
+      const imageURL = await imageUpload(imageFile);
+      // const cloudinaryImageUrl = await imageUploadCloudinary(imageFile)
+      // console.log('Cloudinary Response ----->', cloudinaryImageUrl)
+
+      //1. User Registration
+      const result = await createUser(email, password);
+
+      await saveOrUpdateUser({ name, email, image: imageURL });
+
+      // 2. Generate image url from selected file
+
+      //3. Save username & profile photo
+      await updateUserProfile(name, imageURL);
+
+      navigate(from, { replace: true });
+      toast.success("Signup Successful");
+
+      console.log(result);
+    } catch (err) {
+      console.log(err);
+      toast.error(err?.message);
+    }
   };
-  const isPasswordValid = Object.values(validations).every(Boolean);
+  // form submit handler
+  // const handleSubmit = async event => {
+  //   event.preventDefault()
+  //   const form = event.target
+  //   const name = form.name.value
+  //   const email = form.email.value
+  //   const password = form.password.value
 
-  const handleRegister = (e) => {
-    e.preventDefault();
-    if (!isPasswordValid) return;
+  //   try {
+  //     //1. User Registration
+  //     const result = await createUser(email, password)
 
-    createUserWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
-        console.log("User registered:", userCredential.user);
-        navigate("/");
-      })
-      .catch((error) => {
-        setError(error.message);
+  //     // 2. Generate image url from selected file
+
+  //     //3. Save username & profile photo
+  //     await updateUserProfile(
+  //       name,
+  //       'https://lh3.googleusercontent.com/a/ACg8ocKUMU3XIX-JSUB80Gj_bYIWfYudpibgdwZE1xqmAGxHASgdvCZZ=s96-c'
+  //     )
+
+  //     navigate(from, { replace: true })
+  //     toast.success('Signup Successful')
+  //   } catch (err) {
+  //     console.log(err)
+  //     toast.error(err?.message)
+  //   }
+  // }
+
+  // Handle Google Signin
+  const handleGoogleSignIn = async () => {
+    try {
+      //User Registration using google
+      const { user } = await signInWithGoogle();
+
+      await saveOrUpdateUser({
+        name: user?.displayName,
+        email: user?.email,
+        image: user?.photoURL,
       });
-  };
 
-  const handleGoogleLogin = () => {
-    const provider = new GoogleAuthProvider();
-    signInWithPopup(auth, provider)
-      .then((result) => {
-        console.log("Google sign-up successful:", result.user);
-        navigate("/");
-      })
-      .catch((error) => {
-        console.error("Google sign-up failed:", error);
-        setError(error.message);
-      });
+      navigate(from, { replace: true });
+      toast.success("Signup Successful");
+    } catch (err) {
+      console.log(err);
+      toast.error(err?.message);
+    }
   };
-
   return (
-    <>
-      <div className="min-h-screen bg-lime-100/50 flex items-center justify-center p-4">
+    <div className="flex justify-center items-center min-h-screen bg-white">
+      <div className="flex flex-col max-w-md p-6 rounded-md sm:p-10 bg-gray-100 text-gray-900">
+        <div className="mb-8 text-center">
+          <h1 className="my-3 text-4xl font-bold">Sign Up</h1>
+          <p className="text-sm text-gray-400">Welcome to PlantNet</p>
+        </div>
         <form
-          onSubmit={handleRegister}
-          className="bg-white shadow-lg rounded-2xl p-8 w-full max-w-md border border-gray-100"
+          onSubmit={handleSubmit(onSubmit)}
+          noValidate=""
+          action=""
+          className="space-y-6 ng-untouched ng-pristine ng-valid"
         >
-          <h2 className="text-2xl font-bold text-center text-orange-500 mb-6">
-            Create Your SkillSet Account
-          </h2>
-
-          {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-4">
-              {error}
-            </div>
-          )}
-
-          {/* First Name */}
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              First Name
-            </label>
-            <div className="flex items-center border border-gray-300 rounded-lg px-3">
-              <User className="w-4 h-4 text-gray-400" />
+          <div className="space-y-4">
+            <div>
+              <label htmlFor="email" className="block mb-2 text-sm">
+                Name
+              </label>
               <input
                 type="text"
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-                placeholder="First Name"
-                className="w-full p-2 outline-none text-gray-700"
+                id="name"
+                placeholder="Enter Your Name Here"
+                className="w-full px-3 py-2 border rounded-md border-gray-300 focus:outline-lime-500 bg-gray-200 text-gray-900"
+                data-temp-mail-org="0"
+                {...register("name", {
+                  required: "Name is required",
+                  maxLength: {
+                    value: 20,
+                    message: "Name cannot be too long",
+                  },
+                })}
               />
+              {errors.name && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.name.message}
+                </p>
+              )}
             </div>
-          </div>
-
-          {/* Last Name */}
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Last Name
-            </label>
-            <div className="flex items-center border border-gray-300 rounded-lg px-3">
-              <User className="w-4 h-4 text-gray-400" />
+            {/* Image */}
+            <div>
+              <label
+                htmlFor="image"
+                className="block mb-2 text-sm font-medium text-gray-700"
+              >
+                Profile Image
+              </label>
               <input
-                type="text"
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-                placeholder="Last Name"
-                className="w-full p-2 outline-none text-gray-700"
+                name="image"
+                type="file"
+                id="image"
+                accept="image/*"
+                className="block w-full text-sm text-gray-500
+      file:mr-4 file:py-2 file:px-4
+      file:rounded-md file:border-0
+      file:text-sm file:font-semibold
+      file:bg-lime-50 file:text-lime-700
+      hover:file:bg-lime-100
+      bg-gray-100 border border-dashed border-lime-300 rounded-md cursor-pointer
+      focus:outline-none focus:ring-2 focus:ring-lime-400 focus:border-lime-400
+      py-2"
+                {...register("image")}
               />
+              <p className="mt-1 text-xs text-gray-400">
+                PNG, JPG or JPEG (max 2MB)
+              </p>
             </div>
-          </div>
-
-          {/* Email */}
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Email Address
-            </label>
-            <div className="flex items-center border border-gray-300 rounded-lg px-3">
-              <Mail className="w-4 h-4 text-gray-400" />
+            <div>
+              <label htmlFor="email" className="block mb-2 text-sm">
+                Email address
+              </label>
               <input
                 type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
-                className="w-full p-2 outline-none text-gray-700"
-                required
+                id="email"
+                placeholder="Enter Your Email Here"
+                className="w-full px-3 py-2 border rounded-md border-gray-300 focus:outline-lime-500 bg-gray-200 text-gray-900"
+                data-temp-mail-org="0"
+                {...register("email", {
+                  required: "Email is required",
+                  pattern: {
+                    value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+                    message: "Please enter a valid email address.",
+                  },
+                })}
               />
+              {errors.email && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.email.message}
+                </p>
+              )}
             </div>
-          </div>
-
-          {/* Password */}
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Password
-            </label>
-            <div className="flex items-center border border-gray-300 rounded-lg px-3">
-              <Lock className="w-4 h-4 text-gray-400" />
-              <input
-                type={showPassword ? "text" : "password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Choose a strong password"
-                className="w-full p-2 outline-none text-gray-700"
-                required
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                {showPassword ? (
-                  <EyeOff className="w-4 h-4" />
-                ) : (
-                  <Eye className="w-4 h-4" />
-                )}
-              </button>
-            </div>
-
-            {!isPasswordValid && password.length > 0 && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-3 mt-2 text-sm text-red-700">
-                <p className="font-semibold mb-1">Password Requirements:</p>
-                <ul className="list-disc pl-5 space-y-1">
-                  {!validations.length && <li>At least 6 characters</li>}
-                  {!validations.upper && <li>One uppercase letter</li>}
-                  {!validations.lower && <li>One lowercase letter</li>}
-                </ul>
+            <div>
+              <div className="flex justify-between">
+                <label htmlFor="password" className="text-sm mb-2">
+                  Password
+                </label>
               </div>
-            )}
+              <input
+                type="password"
+                autoComplete="new-password"
+                id="password"
+                placeholder="*******"
+                className="w-full px-3 py-2 border rounded-md border-gray-300 focus:outline-lime-500 bg-gray-200 text-gray-900"
+                {...register("password", {
+                  required: "Password is required",
+                  minLength: {
+                    value: 6,
+                    message: "Password must be at least 6 characters",
+                  },
+                })}
+              />
+              {errors.password && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.password.message}
+                </p>
+              )}
+            </div>
           </div>
 
-          {/* Register Button */}
-
-          <button
-            type="submit"
-            disabled={!isPasswordValid}
-            className={`w-full py-2 rounded-lg font-medium transition ${
-              isPasswordValid
-                ? "bg-orange-600 text-white hover:bg-orange-700"
-                : "bg-gray-300 text-gray-500 cursor-not-allowed"
-            }`}
-          >
-            Register
-          </button>
-
-          {/* Divider */}
-          <div className="my-4 text-center text-gray-500 text-sm">OR</div>
-
-          {/* Google Sign-up */}
-          <button
-            type="button"
-            onClick={handleGoogleLogin}
-            className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center justify-center gap-2 font-medium transition"
-          >
-            <img
-              src="https://www.svgrepo.com/show/475656/google-color.svg"
-              alt="Google"
-              className="w-5 h-5"
-            />
-            Sign up with Google
-          </button>
-
-          {/* Login Link */}
-          <p className="text-sm text-center text-gray-600 mt-4">
-            Already have an account?{" "}
-            <a
-              href="/login"
-              className="text-green-700 hover:underline font-medium"
+          <div>
+            <button
+              type="submit"
+              className="bg-lime-500 w-full rounded-md py-3 text-white"
             >
-              Login
-            </a>
-          </p>
+              {loading ? (
+                <TbFidgetSpinner className="animate-spin m-auto" />
+              ) : (
+                "Continue"
+              )}
+            </button>
+          </div>
         </form>
+        <div className="flex items-center pt-4 space-x-1">
+          <div className="flex-1 h-px sm:w-16 dark:bg-gray-700"></div>
+          <p className="px-3 text-sm dark:text-gray-400">
+            Signup with social accounts
+          </p>
+          <div className="flex-1 h-px sm:w-16 dark:bg-gray-700"></div>
+        </div>
+        <div
+          onClick={handleGoogleSignIn}
+          className="flex justify-center items-center space-x-2 border m-3 p-2 border-gray-300 border-rounded cursor-pointer"
+        >
+          <FcGoogle size={32} />
+
+          <p>Continue with Google</p>
+        </div>
+        <p className="px-6 text-sm text-center text-gray-400">
+          Already have an account?{" "}
+          <Link
+            to="/login"
+            className="hover:underline hover:text-lime-500 text-gray-600"
+          >
+            Login
+          </Link>
+          .
+        </p>
       </div>
-    </>
+    </div>
   );
 };
 
