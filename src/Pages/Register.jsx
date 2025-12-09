@@ -4,7 +4,7 @@ import useAuth from "../hooks/useAuth";
 import { toast } from "react-hot-toast";
 import { TbFidgetSpinner } from "react-icons/tb";
 import { useForm } from "react-hook-form";
-// import { imageUpload, saveOrUpdateUser } from "../../utils";
+import { imageUpload, saveOrUpdateUser } from "../utils";
 
 const Register = () => {
   const { createUser, updateUserProfile, signInWithGoogle, loading } =
@@ -13,7 +13,6 @@ const Register = () => {
   const location = useLocation();
   const from = location.state || "/";
 
-  // React Hook Form
   const {
     register,
     handleSubmit,
@@ -24,71 +23,24 @@ const Register = () => {
   const onSubmit = async (data) => {
     const { name, image, email, password } = data;
     const imageFile = image[0];
-    // const formData = new FormData()
-    // formData.append('image', imageFile)
 
     try {
-      // const { data } = await axios.post(
-      //   `https://api.imgbb.com/1/upload?key=${
-      //     import.meta.env.VITE_IMGBB_API_KEY
-      //   }`,
-      //   formData
-      // )
       const imageURL = await imageUpload(imageFile);
-      // const cloudinaryImageUrl = await imageUploadCloudinary(imageFile)
-      // console.log('Cloudinary Response ----->', cloudinaryImageUrl)
-
-      //1. User Registration
       const result = await createUser(email, password);
 
       await saveOrUpdateUser({ name, email, image: imageURL });
-
-      // 2. Generate image url from selected file
-
-      //3. Save username & profile photo
       await updateUserProfile(name, imageURL);
-
       navigate(from, { replace: true });
       toast.success("Signup Successful");
-
       console.log(result);
     } catch (err) {
       console.log(err);
       toast.error(err?.message);
     }
   };
-  // form submit handler
-  // const handleSubmit = async event => {
-  //   event.preventDefault()
-  //   const form = event.target
-  //   const name = form.name.value
-  //   const email = form.email.value
-  //   const password = form.password.value
 
-  //   try {
-  //     //1. User Registration
-  //     const result = await createUser(email, password)
-
-  //     // 2. Generate image url from selected file
-
-  //     //3. Save username & profile photo
-  //     await updateUserProfile(
-  //       name,
-  //       'https://lh3.googleusercontent.com/a/ACg8ocKUMU3XIX-JSUB80Gj_bYIWfYudpibgdwZE1xqmAGxHASgdvCZZ=s96-c'
-  //     )
-
-  //     navigate(from, { replace: true })
-  //     toast.success('Signup Successful')
-  //   } catch (err) {
-  //     console.log(err)
-  //     toast.error(err?.message)
-  //   }
-  // }
-
-  // Handle Google Signin
   const handleGoogleSignIn = async () => {
     try {
-      //User Registration using google
       const { user } = await signInWithGoogle();
 
       await saveOrUpdateUser({
@@ -106,10 +58,12 @@ const Register = () => {
   };
   return (
     <div className="flex justify-center items-center min-h-screen bg-white">
-      <div className="flex flex-col max-w-md p-6 rounded-md sm:p-10 bg-gray-100 text-gray-900">
+      <div className="flex flex-col max-w-md p-6 rounded-md sm:p-10 bg-green-100 text-green-900">
         <div className="mb-8 text-center">
-          <h1 className="my-3 text-4xl font-bold">Sign Up</h1>
-          <p className="text-sm text-gray-400">Welcome to PlantNet</p>
+          <h1 className="my-3 text-5xl font-bold">Sign Up</h1>
+          <p className="text-sm text-green-800">
+            Welcome to National Scholarship Trust
+          </p>
         </div>
         <form
           onSubmit={handleSubmit(onSubmit)}
@@ -225,7 +179,7 @@ const Register = () => {
           <div>
             <button
               type="submit"
-              className="bg-lime-500 w-full rounded-md py-3 text-white"
+              className="bg-green-800 w-full rounded-md py-3 text-white"
             >
               {loading ? (
                 <TbFidgetSpinner className="animate-spin m-auto" />
