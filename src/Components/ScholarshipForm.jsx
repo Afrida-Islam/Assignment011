@@ -2,8 +2,10 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+// New Import: Toast Library
+import toast, { Toaster } from "react-hot-toast";
 
-// --- 1. Define Zod Validation Schema ---
+// --- 1. Define Zod Validation Schema (Schema remains unchanged) ---
 const scholarshipSchema = z.object({
   // Core Details
   scholarshipName: z.string().min(3, {
@@ -37,10 +39,7 @@ const scholarshipSchema = z.object({
   imageFile: z.any().optional(), // File inputs are complex, often validated server-side or with custom logic
 });
 
-// Define the type for the form data based on the Zod schema
-// type FormData = z.infer<typeof scholarshipSchema>;
-
-// Common options for dropdowns
+// Common options for dropdowns (Unchanged)
 const countries = ["USA", "UK", "Canada", "Australia", "Germany", "Other"];
 const degrees = [
   "Undergraduate",
@@ -66,6 +65,7 @@ const ScholarshipForm = () => {
   const {
     register,
     handleSubmit,
+    reset, // <-- Use reset to clear the form after submission
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(scholarshipSchema),
@@ -74,20 +74,34 @@ const ScholarshipForm = () => {
     },
   });
 
-  // --- 2. Handle Form Submission ---
+  // --- 2. Updated onSubmit Function ---
   const onSubmit = (data) => {
-    // NOTE: For file handling, you would typically use FormData:
-    // const formData = new FormData();
-    // Object.entries(data).forEach(([key, value]) => {
-    //   formData.append(key, key === 'imageFile' && value[0] ? value[0] : value);
-    // });
+    // NOTE: This part simulates a successful API call.
+    // In a real application, you would wrap your fetch/axios call here.
 
     console.log("Form Data (Validated):", data);
-    alert("Scholarship data submitted! Check console for details.");
-    // Example API call: fetch('/api/scholarships', { method: 'POST', body: formData });
+
+    // Simulate a successful API response delay
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        // 1. Show Success Toast
+        toast.success(
+          `Scholarship "${data.scholarshipName}" created successfully!`
+        );
+
+        // 2. Clear the form fields
+        reset();
+
+        resolve();
+      }, 1500); // 1.5 second delay to show loading state
+    }).catch((error) => {
+      // Handle API errors and show an error toast
+      toast.error("An error occurred while creating the scholarship.");
+      console.error("Submission Error:", error);
+    });
   };
 
-  // --- 3. Input Component Helper (for clean repetitive code) ---
+  // --- 3. Input Component Helper (Unchanged) ---
   const InputField = ({ label, name, type = "text", placeholder, error }) => (
     <div>
       <label htmlFor={name} className="block text-sm font-medium text-gray-700">
@@ -98,7 +112,7 @@ const ScholarshipForm = () => {
         id={name}
         placeholder={placeholder}
         {...register(name, { valueAsNumber: type === "number" })}
-        className={`mt-1 block w-full border rounded-md shadow-sm p-3 focus:ring-indigo-500 focus:border-indigo-500 ${
+        className={`mt-1 block w-full border rounded-md shadow-sm p-3 focus:ring-green-500 focus:border-green-500 ${
           error ? "border-red-500" : "border-gray-300"
         }`}
       />
@@ -106,7 +120,7 @@ const ScholarshipForm = () => {
     </div>
   );
 
-  // --- 4. Select Component Helper ---
+  // --- 4. Select Component Helper (Fixed border-green-300 to border-gray-300) ---
   const SelectField = ({ label, name, options, error }) => (
     <div>
       <label htmlFor={name} className="block text-sm font-medium text-gray-700">
@@ -115,8 +129,8 @@ const ScholarshipForm = () => {
       <select
         id={name}
         {...register(name)}
-        className={`mt-1 block w-full border rounded-md shadow-sm p-3 bg-white focus:ring-indigo-500 focus:border-indigo-500 ${
-          error ? "border-red-500" : "border-gray-300"
+        className={`mt-1 block w-full border rounded-md shadow-sm p-3 bg-white focus:ring-green-500 focus:border-green-500 ${
+          error ? "border-red-500" : "border-gray-300" // Changed green-300 back to gray-300 for normal state
         }`}
       >
         <option value="">Select {label}</option>
@@ -130,16 +144,19 @@ const ScholarshipForm = () => {
     </div>
   );
 
-  // --- 5. Component Render ---
+  // --- 5. Component Render (Added Toaster component) ---
   return (
     <div className="min-h-screen bg-gray-100 p-8">
+      {/* Required for toasts to appear */}
+      <Toaster position="top-right" reverseOrder={false} />
+
       <div className="max-w-4xl mx-auto bg-white shadow-xl rounded-lg p-6 sm:p-8">
-        <h1 className="text-3xl font-extrabold text-indigo-700 mb-6 border-b pb-2">
+        <h1 className="text-4xl font-extrabold text-green-700 mb-6 border-b pb-2">
           📝 Add New Scholarship
         </h1>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          {/* --- Section 1: Core Details --- */}
+          {/* ... Form sections 1, 2, 3, and 4 ... (Layout unchanged) */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <InputField
               label="Scholarship Name"
@@ -155,7 +172,6 @@ const ScholarshipForm = () => {
             />
           </div>
 
-          {/* --- Section 2: Location and Ranking --- */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <SelectField
               label="Country"
@@ -178,7 +194,6 @@ const ScholarshipForm = () => {
             />
           </div>
 
-          {/* --- Section 3: Classification --- */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <SelectField
               label="Subject Category"
@@ -200,7 +215,6 @@ const ScholarshipForm = () => {
             />
           </div>
 
-          {/* --- Section 4: Financials and Media --- */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <InputField
               label="Tuition Fees Covered (e.g., $15,000 or 'Full')"
@@ -212,7 +226,7 @@ const ScholarshipForm = () => {
             <div>
               <label
                 htmlFor="imageFile"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-gray-700" // Changed green-700 to gray-700 for better contrast
               >
                 Image (University or Scholarship Logo)
               </label>
@@ -221,7 +235,7 @@ const ScholarshipForm = () => {
                 id="imageFile"
                 {...register("imageFile")} // register file input
                 accept="image/*"
-                className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+                className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100" // Adjusted colors for file input
               />
               {errors.imageFile && (
                 <p className="mt-1 text-sm text-red-600">
@@ -236,7 +250,7 @@ const ScholarshipForm = () => {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full justify-center py-3 px-4 border border-transparent shadow-sm text-lg font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out"
+              className="w-full justify-center py-3 px-4 border border-transparent shadow-sm text-lg font-medium rounded-md text-white bg-green-600 hover:bg-green-700 disabled:bg-green-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-150 ease-in-out"
             >
               {isSubmitting ? "Submitting..." : "🚀 Create Scholarship"}
             </button>

@@ -10,6 +10,7 @@ import ApplicationSubmissionPage from "../Components/ApplicationSubmissionPage";
 import DashboardLayout from "../Layouts/DashboardLayout";
 import Profile from "../Pages/Profile";
 import ScholarshipForm from "../Components/ScholarshipForm";
+import PaymentStatusPage from "../Components/PaymentStatusPage";
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -35,6 +36,10 @@ export const router = createBrowserRouter([
       {
         path: "/ScholarshipForm",
         Component: ScholarshipForm,
+      },
+      {
+        path: "/PaymentStatus",
+        Component: PaymentStatusPage,
       },
       {
         path: "/scholarships",
