@@ -40,26 +40,33 @@ const AuthProvider = ({ children }) => {
   };
 
   const updateUserProfile = (name, photo) => {
-    return updateProfile(auth.currentUser, {
-      displayName: name,
-      photoURL: photo,
-    });
-  }; // onAuthStateChange
+    if (auth.currentUser) {
+      return updateProfile(auth.currentUser, {
+        displayName: name,
+        photoURL: photo,
+      });
+    }
+    return Promise.reject(
+      new Error("No user is currently signed in to update profile.")
+    );
+  };
 
+  // Monitor Auth State Change
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       console.log("CurrentUser-->", currentUser?.email);
-      setUser(currentUser); // Crucially, set loading to false AFTER the user state is checked
+      setUser(currentUser);
       setLoading(false);
     });
-    return () => {
-      return unsubscribe();
-    };
-  }, []); // NEW: Return a loading indicator while Firebase is checking the auth status
 
+    // Cleanup function
+    return () => unsubscribe();
+  }, []);
+
+  // Loading indicator
   if (loading) {
     return (
-      <div style={{ textAlign: "center", padding: "50px" }}>
+      <div style={{ textAlign: "center", padding: "50px", fontSize: "20px" }}>
         Checking Authentication...
       </div>
     );

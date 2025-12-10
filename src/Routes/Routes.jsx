@@ -8,6 +8,8 @@ import Allscholarship from "../Components/Allscholarship";
 import ScholarshipDetailsPage from "../Components/ScholarshipDetailsPage";
 import ApplicationSubmissionPage from "../Components/ApplicationSubmissionPage";
 import DashboardLayout from "../Layouts/DashboardLayout";
+import Profile from "../Pages/Profile";
+import ScholarshipForm from "../Components/ScholarshipForm";
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -25,6 +27,14 @@ export const router = createBrowserRouter([
       {
         path: "/signup",
         Component: Register,
+      },
+      {
+        path: "/dashboard/profile",
+        Component: Profile,
+      },
+      {
+        path: "/ScholarshipForm",
+        Component: ScholarshipForm,
       },
       {
         path: "/scholarships",

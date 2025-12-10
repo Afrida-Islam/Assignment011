@@ -1,4 +1,4 @@
-import { Link, useLocation, useNavigate } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router-dom"; // Use react-router-dom for imports
 import { FcGoogle } from "react-icons/fc";
 import useAuth from "../hooks/useAuth";
 import { toast } from "react-hot-toast";
@@ -11,31 +11,56 @@ const Register = () => {
     useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const from = location.state || "/";
+  const from = location.state?.from || "/"; // Check for .from property
 
   const {
     register,
     handleSubmit,
     formState: { errors },
+    reset, // Added reset for potential future use
   } = useForm();
 
   console.log(errors);
+
   const onSubmit = async (data) => {
     const { name, image, email, password } = data;
     const imageFile = image[0];
 
     try {
+      // 1. Upload Image
       const imageURL = await imageUpload(imageFile);
+
+      // 2. Create User (Error occurs here if email is duplicate or password weak)
       const result = await createUser(email, password);
 
-      await saveOrUpdateUser({ name, email, image: imageURL });
+      // 3. Update Profile and Save User Data
       await updateUserProfile(name, imageURL);
+      await saveOrUpdateUser({ name, email, image: imageURL });
+
+      // Success
+      reset(); // Clear form fields on successful submission
       navigate(from, { replace: true });
       toast.success("Signup Successful");
       console.log(result);
     } catch (err) {
-      console.log(err);
-      toast.error(err?.message);
+      console.error("Sign Up Error:", err);
+
+      let errorMessage = "An unknown error occurred during sign up.";
+
+      // *** FIX: Handle specific Firebase Auth error codes ***
+      if (err.code === "auth/email-already-in-use") {
+        errorMessage =
+          "This email is already registered. Please login instead.";
+      } else if (err.code === "auth/weak-password") {
+        errorMessage = "Password must be at least 6 characters long.";
+      } else if (err.code === "auth/invalid-email") {
+        errorMessage = "The email address is not valid.";
+      } else {
+        // Fallback for other errors (like network issues, etc.)
+        errorMessage = err.message || errorMessage;
+      }
+
+      toast.error(errorMessage);
     }
   };
 
@@ -52,10 +77,11 @@ const Register = () => {
       navigate(from, { replace: true });
       toast.success("Signup Successful");
     } catch (err) {
-      console.log(err);
-      toast.error(err?.message);
+      console.error(err);
+      toast.error(err?.message || "Google sign-in failed.");
     }
   };
+
   return (
     <div className="flex justify-center items-center min-h-screen bg-white">
       <div className="flex flex-col max-w-md p-6 rounded-md sm:p-10 bg-green-100 text-green-900">
@@ -72,8 +98,9 @@ const Register = () => {
           className="space-y-6 ng-untouched ng-pristine ng-valid"
         >
           <div className="space-y-4">
+            {/* Name */}
             <div>
-              <label htmlFor="email" className="block mb-2 text-sm">
+              <label htmlFor="name" className="block mb-2 text-sm">
                 Name
               </label>
               <input
@@ -96,6 +123,7 @@ const Register = () => {
                 </p>
               )}
             </div>
+
             {/* Image */}
             <div>
               <label
@@ -118,12 +146,21 @@ const Register = () => {
       bg-gray-100 border border-dashed border-lime-300 rounded-md cursor-pointer
       focus:outline-none focus:ring-2 focus:ring-lime-400 focus:border-lime-400
       py-2"
-                {...register("image")}
+                {...register("image", {
+                  required: "Profile image is required",
+                })}
               />
               <p className="mt-1 text-xs text-gray-400">
                 PNG, JPG or JPEG (max 2MB)
               </p>
+              {errors.image && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.image.message}
+                </p>
+              )}
             </div>
+
+            {/* Email */}
             <div>
               <label htmlFor="email" className="block mb-2 text-sm">
                 Email address
@@ -148,6 +185,8 @@ const Register = () => {
                 </p>
               )}
             </div>
+
+            {/* Password */}
             <div>
               <div className="flex justify-between">
                 <label htmlFor="password" className="text-sm mb-2">
@@ -179,7 +218,8 @@ const Register = () => {
           <div>
             <button
               type="submit"
-              className="bg-green-800 w-full rounded-md py-3 text-white"
+              className="bg-green-800 w-full rounded-md py-3 text-white disabled:bg-gray-400"
+              disabled={loading}
             >
               {loading ? (
                 <TbFidgetSpinner className="animate-spin m-auto" />
@@ -201,7 +241,6 @@ const Register = () => {
           className="flex justify-center items-center space-x-2 border m-3 p-2 border-gray-300 border-rounded cursor-pointer"
         >
           <FcGoogle size={32} />
-
           <p>Continue with Google</p>
         </div>
         <p className="px-6 text-sm text-center text-gray-400">
