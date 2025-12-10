@@ -7,7 +7,7 @@ import ErrorPage from "../Pages/ErrorPage";
 import Allscholarship from "../Components/Allscholarship";
 import ScholarshipDetailsPage from "../Components/ScholarshipDetailsPage";
 import ApplicationSubmissionPage from "../Components/ApplicationSubmissionPage";
-import DashboardLayout from "../Components/DashboardLayout";
+import DashboardLayout from "../Layouts/DashboardLayout";
 export const router = createBrowserRouter([
   {
     path: "/",

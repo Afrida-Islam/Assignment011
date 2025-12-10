@@ -10,7 +10,7 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="fixed w-full bg-white z-10 shadow-sm">
+    <div className="fixe w-full bg-white z-10 shadow-sm">
       <div className="py-4 ">
         <Container>
           <div className="flex flex-row  items-center justify-between gap-3 md:gap-0">
@@ -68,12 +68,13 @@ const Navbar = () => {
                         >
                           Dashboard
                         </Link>
-                        <div
+                        <Link
+                          to="/"
                           onClick={logOut}
                           className="px-4 py-3 hover:bg-neutral-100 transition font-semibold cursor-pointer"
                         >
                           Logout
-                        </div>
+                        </Link>
                       </>
                     ) : (
                       <>
