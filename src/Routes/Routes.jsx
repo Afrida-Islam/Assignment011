@@ -53,7 +53,7 @@ export const router = createBrowserRouter([
           fetch(`http://localhost:3000/data/${params._id}`),
       },
       {
-        path: "/application/:_id",
+        path: "/application",
         Component: ApplicationSubmissionPage,
       },
       {

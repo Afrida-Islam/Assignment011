@@ -24,7 +24,17 @@ const Navbar = () => {
                 </div>
               </div>
             </div>
-
+            <div className="flex items-center space-x-6 text-green-800 text-3xl  font-bold hidden md:flex">
+              <Link to="/" className="hover:text-green-600 transition">
+                Home
+              </Link>
+              <Link
+                to="/scholarships"
+                className="hover:text-green-600 transition"
+              >
+                All Scholarship
+              </Link>
+            </div>
             <div className="relative">
               <div className="flex flex-row items-center gap-3">
                 <div
