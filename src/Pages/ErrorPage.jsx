@@ -1,51 +1,63 @@
-
-import React from 'react';
+// import Button from '../components/Shared/Button/Button'
+import { useNavigate } from "react-router";
 
 const ErrorPage = () => {
+  const navigate = useNavigate();
+
   return (
-   <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8 text-center">
-        {/* Error Code and Main Message */}
-        <div className="relative">
-          <p className="text-9xl font-extrabold text-indigo-200 opacity-50 dark:text-indigo-800 dark:opacity-30">404</p>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-            <h1 className="text-6xl font-extrabold text-gray-900 dark:text-white tracking-tight sm:text-7xl">
-              Lost In Space
-            </h1>
+    <section className="bg-white ">
+      <div className="container flex items-center min-h-screen px-6 py-12 mx-auto">
+        <div className="flex flex-col items-center max-w-sm mx-auto text-center">
+          <p className="p-3 text-sm font-medium text-lime-500 rounded-full bg-blue-50 ">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth="2"
+              stroke="currentColor"
+              className="w-6 h-6"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"
+              />
+            </svg>
+          </p>
+          <h1 className="mt-3 text-2xl font-semibold text-gray-800  md:text-3xl">
+            Something Went Wrong!
+          </h1>
+          <p className="mt-4 text-gray-500 ">Here are some helpful links:</p>
+
+          <div className="flex items-center w-full mt-6 gap-x-3 shrink-0 sm:w-auto">
+            <button
+              onClick={() => navigate(-1)}
+              className="flex items-center justify-center w-1/2 px-5 py-1 text-sm text-gray-700 transition-colors duration-200 bg-white border rounded-lg gap-x-2 sm:w-auto   hover:bg-gray-100 "
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth="1.5"
+                stroke="currentColor"
+                className="w-5 h-5 rtl:rotate-180 text-lime-500"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M6.75 15.75L3 12m0 0l3.75-3.75M3 12h18"
+                />
+              </svg>
+
+              <span>Go back</span>
+            </button>
+
+            {/* <Button label={'Take Me Home'} onClick={() => navigate('/')} /> */}
           </div>
         </div>
-
-        {/* Descriptive Text */}
-        <p className="mt-2 text-lg text-gray-600 dark:text-gray-400">
-          Oops! The page you're looking for seems to have vanished into the digital void.
-        </p>
-        <p className="mt-2 text-sm text-gray-500 dark:text-gray-500">
-          Don't worry, we'll help you find your way back.
-        </p>
-
-        {/* Call-to-Action Buttons */}
-        <div className="mt-6 flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
-          <a
-            href="/" // Link to your homepage
-            className="w-full sm:w-auto flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out"
-          >
-            🚀 Go Home
-          </a>
-          <a
-            href="/support" // Link to a help/support page
-            className="w-full sm:w-auto flex items-center justify-center px-6 py-3 border border-gray-300 text-base font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out"
-          >
-            Need Help?
-          </a>
-        </div>
-        
-        {/* Optional Footer/Detail */}
-        <p className="mt-8 text-xs text-gray-400 dark:text-gray-600">
-          Error Code: E_404_PAGE_NOT_FOUND
-        </p>
       </div>
-    </div>
+    </section>
   );
 };
 
-export default ErrorPage ;
+export default ErrorPage;

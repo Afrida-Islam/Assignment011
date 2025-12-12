@@ -6,7 +6,7 @@ import Home from "../Pages/Home";
 import ErrorPage from "../Pages/ErrorPage";
 import Allscholarship from "../Components/Allscholarship";
 import ScholarshipDetailsPage from "../Components/ScholarshipDetailsPage";
-import ApplicationSubmissionPage from "../Components/ApplicationSubmissionPage";
+// import ApplicationForm "../Components";
 import DashboardLayout from "../Layouts/DashboardLayout";
 import Profile from "../Pages/Profile";
 import ScholarshipForm from "../Components/ScholarshipForm";
@@ -52,10 +52,10 @@ export const router = createBrowserRouter([
         loader: ({ params }) =>
           fetch(`http://localhost:3000/data/${params._id}`),
       },
-      {
-        path: "/application",
-        Component: ApplicationSubmissionPage,
-      },
+      // {
+      //   path: "/application",
+      //   Component: ApplicationForm,
+      // },
       {
         path: "/dashboard",
         Component: DashboardLayout,
