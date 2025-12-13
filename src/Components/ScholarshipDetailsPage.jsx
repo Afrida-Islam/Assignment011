@@ -1,9 +1,7 @@
 import { Link } from "react-router-dom";
 import { useLoaderData } from "react-router-dom";
 
-// --- PURE HELPER FUNCTION: NO HOOKS HERE ---
 const formatCurrency = (amount) => {
-  // Removed incorrect useLoaderData calls from here.
   return amount !== undefined
     ? new Intl.NumberFormat("en-US", {
         style: "currency",

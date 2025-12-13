@@ -27,11 +27,11 @@ const Register = () => {
     const imageFile = image[0];
 
     try {
-      // 1. Upload Image
-      const imageURL = await imageUpload(imageFile);
-
-      // 2. Create User (Error occurs here if email is duplicate or password weak)
+      // 1. Create User. If this fails, the process stops before image upload.
       const result = await createUser(email, password);
+
+      // 2. Upload Image
+      const imageURL = await imageUpload(imageFile);
 
       // 3. Update Profile and Save User Data
       await updateUserProfile(name, imageURL);
@@ -47,14 +47,23 @@ const Register = () => {
 
       let errorMessage = "An unknown error occurred during sign up.";
 
-      // *** FIX: Handle specific Firebase Auth error codes ***
-      if (err.code === "auth/email-already-in-use") {
-        errorMessage =
-          "This email is already registered. Please login instead.";
-      } else if (err.code === "auth/weak-password") {
-        errorMessage = "Password must be at least 6 characters long.";
-      } else if (err.code === "auth/invalid-email") {
-        errorMessage = "The email address is not valid.";
+      // Handle specific Firebase Auth error codes
+      if (err.code) {
+        switch (err.code) {
+          case "auth/email-already-in-use":
+            errorMessage =
+              "This email is already registered. Please login instead.";
+            break;
+          case "auth/weak-password":
+            errorMessage = "Password must be at least 6 characters long.";
+            break;
+          case "auth/invalid-email":
+            errorMessage = "The email address is not valid.";
+            break;
+          default:
+            errorMessage =
+              err.message || "An unexpected Firebase error occurred.";
+        }
       } else {
         // Fallback for other errors (like network issues, etc.)
         errorMessage = err.message || errorMessage;

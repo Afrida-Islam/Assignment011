@@ -1,19 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-// Assuming this utility exists and handles the upload
-import { imageUpload } from "../utils"; 
-import useAuth from "../hooks/useAuth"; 
-import { useMutation, useQueryClient } from "@tanstack/react-query"; // Added useQueryClient
-import LoadingSpinner from "../Components/LoadingSpinner";
-import ErrorPage from "../Pages/ErrorPage";
+import { imageUpload } from "../../utils";
+import useAuth from "../../hooks/useAuth";
 import toast, { Toaster } from "react-hot-toast";
 import { TbFidgetSpinner } from "react-icons/tb";
-import useAxiosSecure from "../hooks/useAxiosSecure";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useNavigate } from "react-router-dom"; // Added for navigation
-
-// --- ZOD Schema (No changes needed, it's perfect) ---
+import { useNavigate } from "react-router-dom";
 const scholarshipSchema = z.object({
   scholarshipName: z
     .string()
@@ -22,7 +15,7 @@ const scholarshipSchema = z.object({
     .string()
     .min(3, { message: "University Name is required (min 3 chars)." }),
   // Updated image validation for RHF file input
-  image: z.any().refine((file) => file && file.length > 0, "Image is required"), 
+  image: z.any().refine((file) => file && file.length > 0, "Image is required"),
   country: z.string().min(1, { message: "Country is required." }),
   city: z.string().min(1, { message: "City is required." }),
   worldRank: z.preprocess(
@@ -117,11 +110,10 @@ const SelectField = ({ label, name, options, error, register }) => (
   </div>
 );
 
-const AddScholarshipForm = () => {
+const ScholarshipForm = () => {
   const { user } = useAuth();
-  const axiosSecure = useAxiosSecure();
   const navigate = useNavigate(); // Hook for redirection
-  const queryClient = useQueryClient(); // Hook for cache invalidation
+  const [loading, setLoading] = useState(false); // Local loading state for fetch
 
   // 1. Correctly set up react-hook-form
   const {
@@ -133,33 +125,12 @@ const AddScholarshipForm = () => {
     resolver: zodResolver(scholarshipSchema),
   });
 
-  // 2. Setup useMutation for posting data
-  const { mutate, isPending, isError } = useMutation({
-    mutationFn: async (scholarshipData) => {
-      // Use the secured axios instance
-      const response = await axiosSecure.post(
-        "http://localhost:3000/data", // Endpoint changed to a sensible path
-        scholarshipData
-      );
-      return response.data;
-    },
-    onSuccess: () => {
-      toast.success("🚀 Scholarship added successfully!");
-      // Optional: Invalidate queries to refresh any scholarship lists
-      queryClient.invalidateQueries({ queryKey: ["scholarships"] }); 
-      reset(); // Reset form fields
-      navigate("/"); // Redirect to home or dashboard
-    },
-    onError: (error) => {
-      console.error("Mutation Error:", error);
-      toast.error(`❌ Submission failed: ${error.message || "An unknown error occurred."}`);
-    },
-  });
-
-  // 3. Define the actual submission handler for RHF
+  // 2. Define the actual submission handler for RHF
   const onSubmit = async (data) => {
+    setLoading(true); // Start loading state
+
     try {
-      // 3.1. Upload Image
+      // 2.1. Upload Image
       const imageFile = data.image[0];
       const imageUrl = await imageUpload(imageFile); // Assuming imageUpload returns a URL
 
@@ -167,7 +138,7 @@ const AddScholarshipForm = () => {
         throw new Error("Failed to upload image. Please try again.");
       }
 
-      // 3.2. Prepare Scholarship Data
+      // 2.2. Prepare Scholarship Data
       const scholarshipData = {
         scholarshipName: data.scholarshipName,
         universityName: data.universityName,
@@ -180,7 +151,7 @@ const AddScholarshipForm = () => {
         degree: data.degree,
         tuitionFees: data.tuitionFees,
         // Agent information from the authenticated user
-        agent: { 
+        agent: {
           image: user?.photoURL || null,
           name: user?.displayName || user?.email, // Fallback to email if display name is missing
           email: user?.email,
@@ -190,20 +161,45 @@ const AddScholarshipForm = () => {
         applicationCount: 0,
       };
 
-      // 3.3. Call the mutation
-      mutate(scholarshipData);
+      // 2.3. Call the fetch API
+      const response = await fetch("http://localhost:3000/data", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          // NOTE: If you need auth headers with fetch, you'd add them here
+          // e.g., 'Authorization': `Bearer ${await user.getIdToken()}`
+        },
+        body: JSON.stringify(scholarshipData),
+      });
 
+      // 2.4. Handle response
+      if (!response.ok) {
+        // Attempt to read JSON error body if available
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          errorData.message || `Server responded with status ${response.status}`
+        );
+      }
+
+      const result = await response.json();
+      console.log("API Success:", result);
+
+      // Success actions
+      toast.success("🚀 Scholarship added successfully!");
+      reset(); // Reset form fields
+      navigate("/"); // Redirect to home or dashboard
     } catch (error) {
       console.error("Submission Process Error:", error);
-      // If image upload fails or any part of the prep fails
-      toast.error(`Error during submission: ${error.message}`); 
+      toast.error(
+        `❌ Submission failed: ${error.message || "An unknown error occurred."}`
+      );
+    } finally {
+      setLoading(false); // End loading state regardless of success or failure
     }
   };
 
-  // The isPending from useMutation and isSubmitting from useForm control the spinner
-  const loading = isPending || isSubmitting;
-
-  if (isError) return <ErrorPage />; // Handle fatal errors
+  // The final loading state combines the local state and RHF's submitting state
+  const isFormLoading = loading || isSubmitting;
 
   return (
     <div className="min-h-screen bg-gray-100 p-8">
@@ -317,10 +313,10 @@ const AddScholarshipForm = () => {
           <div className="pt-5 border-t mt-8">
             <button
               type="submit"
-              disabled={loading}
+              disabled={isFormLoading}
               className="w-full justify-center py-3 px-4 border border-transparent shadow-sm text-lg font-medium rounded-md text-white bg-green-700 hover:bg-green-600 disabled:bg-green-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-150 ease-in-out"
             >
-              {loading ? (
+              {isFormLoading ? (
                 <TbFidgetSpinner className="animate-spin m-auto text-xl" />
               ) : (
                 "🚀 Create Scholarship"
@@ -333,4 +329,4 @@ const AddScholarshipForm = () => {
   );
 };
 
-export default AddScholarshipForm;
+export default ScholarshipForm;
