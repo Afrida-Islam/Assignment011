@@ -25,11 +25,14 @@ const Login = () => {
     try {
       const { user } = await signIn(email, password);
 
-      await saveOrUpdateUser({
-        name: user?.displayName,
-        email: user?.email,
-        image: user?.photoURL,
-      });
+      await saveOrUpdateUser(
+        {
+          name: user?.displayName,
+          email: user?.email,
+          image: user?.photoURL,
+        },
+        user.accessToken
+      );
 
       navigate(from, { replace: true });
       toast.success("Login Successful");

@@ -162,7 +162,7 @@ const ScholarshipForm = () => {
       };
 
       // 2.3. Call the fetch API
-      const response = await fetch("http://localhost:3000/data", {
+      const response = await fetch("http://localhost:3000/create-scholarship", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

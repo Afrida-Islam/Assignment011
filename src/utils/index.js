@@ -11,7 +11,11 @@ export const imageUpload = async (imageData) => {
   return data?.data?.display_url;
 };
 
-export const saveOrUpdateUser = async (userData) => {
-  const { data } = await axios.post(`http://localhost:3000/user`, userData);
+export const saveOrUpdateUser = async (userData, token) => {
+  const { data } = await axios.post(`http://localhost:3000/user`, userData, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
   return data;
 };

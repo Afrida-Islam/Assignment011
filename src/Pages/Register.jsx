@@ -30,12 +30,21 @@ const Register = () => {
       // 1. Create User. If this fails, the process stops before image upload.
       const result = await createUser(email, password);
 
+      let user = await result.user;
+
+      // console.log(user.accessToken);
+
       // 2. Upload Image
       const imageURL = await imageUpload(imageFile);
 
       // 3. Update Profile and Save User Data
       await updateUserProfile(name, imageURL);
-      await saveOrUpdateUser({ name, email, image: imageURL });
+      let userInfo = await saveOrUpdateUser(
+        { name, email, image: imageURL },
+        user.accessToken
+      );
+
+      console.log("my userInfo: " + JSON.stringify(userInfo));
 
       // Success
       reset(); // Clear form fields on successful submission
