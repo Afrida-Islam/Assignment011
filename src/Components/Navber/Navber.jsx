@@ -3,7 +3,7 @@ import { AiOutlineMenu } from "react-icons/ai";
 import { useState } from "react";
 import { Link } from "react-router";
 import useAuth from "../../hooks/useAuth";
-import avatarImg from "../../assets/download (1).jpeg";
+import avatarImg from "../../assets/download.jpeg";
 import logo from "../../assets/logo.webp";
 const Navbar = () => {
   const { user, logOut } = useAuth();

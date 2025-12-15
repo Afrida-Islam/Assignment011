@@ -6,14 +6,14 @@ import Home from "../Pages/Home";
 import ErrorPage from "../Pages/ErrorPage";
 import Allscholarship from "../Components/Allscholarship";
 import ScholarshipDetailsPage from "../Components/ScholarshipDetailsPage";
-// import ApplicationForm "../Components";
 import DashboardLayout from "../Layouts/DashboardLayout";
 import Profile from "../Pages/Profile";
 import ScholarshipForm from "../Pages/Admin Dashboard/ScholarshipForm";
-import PaymentStatusPage from "../Components/PaymentStatusPage";
+
 import ManageScholarships from "../Pages/Admin Dashboard/ManageScholarships";
 import ManageUsers from "../Pages/Admin Dashboard/ManageUsers";
-import ReviewsSection from "../Components/ReviewsSection";
+import PaymentSuccess from "../Pages/PaymentSuccess";
+
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -27,6 +27,10 @@ export const router = createBrowserRouter([
       {
         path: "/login",
         Component: Login,
+      },
+      {
+        path: "/PaymentSuccess",
+        Component: PaymentSuccess,
       },
       {
         path: "/signup",
@@ -52,22 +56,23 @@ export const router = createBrowserRouter([
       {
         path: "/scholarships",
         Component: Allscholarship,
-        loader: () => fetch(`http://localhost:3000/data`),
+        loader: () => fetch(`http://localhost:3000/scholarship`),
       },
       {
         path: "/scholarshipdetails/:_id",
         Component: ScholarshipDetailsPage,
         loader: ({ params }) =>
-          fetch(`http://localhost:3000/data/${params._id}`),
+          fetch(`http://localhost:3000/scholarship/${params._id}`),
       },
-      {
-        path: "/application",
-        Component: ReviewsSection,
-      },
+      
       {
         path: "/dashboard",
         Component: DashboardLayout,
       },
+      //  {
+      //   path: "/dashboard",
+      //   Component: DashboardLayout,
+      // },
     ],
   },
 ]);

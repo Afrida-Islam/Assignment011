@@ -166,8 +166,6 @@ const ScholarshipForm = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          // NOTE: If you need auth headers with fetch, you'd add them here
-          // e.g., 'Authorization': `Bearer ${await user.getIdToken()}`
         },
         body: JSON.stringify(scholarshipData),
       });
@@ -184,21 +182,19 @@ const ScholarshipForm = () => {
       const result = await response.json();
       console.log("API Success:", result);
 
-      // Success actions
       toast.success("🚀 Scholarship added successfully!");
-      reset(); // Reset form fields
-      navigate("/"); // Redirect to home or dashboard
+      reset();
+      navigate("/");
     } catch (error) {
       console.error("Submission Process Error:", error);
       toast.error(
         `❌ Submission failed: ${error.message || "An unknown error occurred."}`
       );
     } finally {
-      setLoading(false); // End loading state regardless of success or failure
+      setLoading(false);
     }
   };
 
-  // The final loading state combines the local state and RHF's submitting state
   const isFormLoading = loading || isSubmitting;
 
   return (
