@@ -13,6 +13,7 @@ import ScholarshipForm from "../Pages/Admin Dashboard/ScholarshipForm";
 import ManageScholarships from "../Pages/Admin Dashboard/ManageScholarships";
 import ManageUsers from "../Pages/Admin Dashboard/ManageUsers";
 import PaymentSuccess from "../Pages/PaymentSuccess";
+import MyApplications from "../Pages/Student Dashboard/MyApplications";
 
 export const router = createBrowserRouter([
   {
@@ -64,15 +65,15 @@ export const router = createBrowserRouter([
         loader: ({ params }) =>
           fetch(`http://localhost:3000/scholarship/${params._id}`),
       },
-      
+
       {
         path: "/dashboard",
         Component: DashboardLayout,
       },
-      //  {
-      //   path: "/dashboard",
-      //   Component: DashboardLayout,
-      // },
+      {
+        path: "/dashboard/my-applications",
+        Component: MyApplications,
+      },
     ],
   },
 ]);
