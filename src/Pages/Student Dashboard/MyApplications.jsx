@@ -12,7 +12,9 @@ const MyApplications = () => {
   const { data: applications = [], isLoading } = useQuery({
     queryKey: ["applications", user?.email],
     queryFn: async () => {
-      const result = await axiosSecure(`/my-applications`);
+      const result = await axiosSecure(`http://localhost:3000/my-applications`);
+
+      console.log("Res: " + result.data);
       return Array.isArray(result.data)
         ? result.data
         : result.data.applications || [];
@@ -23,19 +25,19 @@ const MyApplications = () => {
 
   if (isLoading) return <LoadingSpinner />;
 
-    // // Display message if no applications are found
-    // if (applications.length === 0) {
-    //   return (
-    //     <div className="flex flex-col items-center justify-center p-10 h-[50vh] bg-gray-50">
-    //       <h1 className="text-2xl font-bold text-gray-700 mb-4">
-    //         No Applications Found
-    //       </h1>
-    //       <p className="text-gray-500">
-    //         You have not submitted any scholarship applications yet.
-    //       </p>
-    //     </div>
-    //   );
-    // }
+  // // Display message if no applications are found
+  // if (applications.length === 0) {
+  //   return (
+  //     <div className="flex flex-col items-center justify-center p-10 h-[50vh] bg-gray-50">
+  //       <h1 className="text-2xl font-bold text-gray-700 mb-4">
+  //         No Applications Found
+  //       </h1>
+  //       <p className="text-gray-500">
+  //         You have not submitted any scholarship applications yet.
+  //       </p>
+  //     </div>
+  //   );
+  // }
 
   return (
     <>
@@ -50,6 +52,12 @@ const MyApplications = () => {
                 <thead>
                   <tr>
                     {/* NEW COLUMNS START HERE */}
+                    <th
+                      scope="col"
+                      className="px-5 py-3 bg-gray-100 border-b border-gray-200 text-gray-800 text-left text-sm uppercase font-semibold"
+                    >
+                      Scholarship Name
+                    </th>
                     <th
                       scope="col"
                       className="px-5 py-3 bg-gray-100 border-b border-gray-200 text-gray-800 text-left text-sm uppercase font-semibold"
