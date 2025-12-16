@@ -1,6 +1,6 @@
 import { useState } from "react"; // 1. Import useState hook
 import { useLoaderData } from "react-router-dom";
-import ScholarshipPaymentModal from "../components/ScholarshipPaymentModal"; // 2. Import the Modal component (Adjust path if needed)
+import ScholarshipPaymentModal from "../Components/ScholarshipPaymentModal";
 
 const formatCurrency = (amount) => {
   return amount !== undefined
