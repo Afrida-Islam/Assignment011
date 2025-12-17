@@ -14,7 +14,7 @@ import ManageScholarships from "../Pages/Admin Dashboard/ManageScholarships";
 import ManageUsers from "../Pages/Admin Dashboard/ManageUsers";
 import PaymentSuccess from "../Pages/PaymentSuccess";
 import MyApplications from "../Pages/Student Dashboard/MyApplications";
-
+import Analytics from "../Pages/Admin Dashboard/Analytics";
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -86,7 +86,7 @@ export const router = createBrowserRouter([
       { path: "/dashboard/add-scholarship", element: <AddScholarship /> },
       { path: "manage-scholarships", element: <ManageScholarships /> },
       { path: "manage-users", element: <ManageUsers /> },
-      // { path: "analytics", element: <Analytics /> },
+      { path: "analytics", element: <Analytics /> },
 
       // Moderator Routes
       // {
