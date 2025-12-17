@@ -1,205 +1,129 @@
-import React, { useState, useEffect } from "react";
-import toast, { Toaster } from "react-hot-toast";
-import { FaEdit, FaTrash, FaPlus } from "react-icons/fa";
-import { TbFidgetSpinner } from "react-icons/tb";
-import { useNavigate } from "react-router-dom";
-// NOTE: Assuming you have a standard axios/fetch hook or utility for data fetching
-// If using TanStack Query, replace this simple fetch with useQuery.
-
-// --- Placeholder for API Base URL ---
-const SCHOLARSHIP_API_URL = "http://localhost:3000/data";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import useAxiosSecure from "../../hooks/useAxiosSecure";
+import LoadingSpinner from "../../Components/LoadingSpinner";
+import { FaEdit, FaTrashAlt } from "react-icons/fa";
+import Swal from "sweetalert2";
+import toast from "react-hot-toast";
 
 const ManageScholarships = () => {
-  const [scholarships, setScholarships] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
-
-  // --- 1. Fetch Data Function ---
-  const fetchScholarships = async () => {
-    setLoading(true);
-    try {
-      const response = await fetch(SCHOLARSHIP_API_URL);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch scholarships: ${response.statusText}`);
-      }
-      const data = await response.json();
-      setScholarships(data);
-    } catch (error) {
-      console.error("Fetch Error:", error);
-      toast.error(`Error loading data: ${error.message}`);
-      setScholarships([]); // Clear scholarships on error
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchScholarships();
-  }, []);
-
-  // --- 2. Action Handlers ---
-
-  const handleUpdate = (scholarshipId) => {
-    // Redirect to an Edit page. You'll need to create this page.
-    navigate(`/dashboard/edit-scholarship/${scholarshipId}`);
-    toast(`Redirecting to edit ID: ${scholarshipId}`, { icon: "✏️" });
-  };
-
-  const handleDelete = async (scholarshipId) => {
-    if (!window.confirm("Are you sure you want to delete this scholarship?")) {
-      return;
-    }
-
-    const deleteToastId = toast.loading("Deleting scholarship...");
-
-    try {
-      // NOTE: Ensure your backend supports the DELETE method on this endpoint
-      const response = await fetch(`${SCHOLARSHIP_API_URL}/${scholarshipId}`, {
-        method: "DELETE",
-        // If your backend requires authentication for DELETE, add headers here:
-        // headers: { 'Authorization': `Bearer ${userToken}` }
-      });
-
-      if (!response.ok) {
-        throw new Error(`Deletion failed: ${response.statusText}`);
-      }
-
-      // Update the UI by filtering out the deleted scholarship
-      setScholarships((prev) =>
-        prev.filter((scholarship) => scholarship.id !== scholarshipId)
+  const axiosSecure = useAxiosSecure();
+  const queryClient = useQueryClient();
+  const { data: scholarships = [], isLoading } = useQuery({
+    queryKey: ["all-scholarships"],
+    queryFn: async () => {
+      const { data } = await axiosSecure.get(
+        "http://localhost:3000/scholarship"
       );
+      return data;
+    },
+  });
 
-      toast.success("🗑️ Scholarship deleted successfully!", {
-        id: deleteToastId,
-      });
-    } catch (error) {
-      console.error("Delete Error:", error);
-      toast.error(`Failed to delete: ${error.message}`, { id: deleteToastId });
-    }
+  // ২. স্কলারশিপ ডিলিট করার ফাংশন
+  const { mutateAsync: deleteScholarship } = useMutation({
+    mutationFn: async (id) => {
+      const { data } = await axiosSecure.delete(
+        `http://localhost:3000/scholarship/${id}`
+      );
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["all-scholarships"]);
+      toast.success("Scholarship deleted successfully!");
+    },
+  });
+
+  const handleDelete = async (id) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#15803d",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await deleteScholarship(id);
+        } catch (err) {
+          toast.error(err.message);
+        }
+      }
+    });
   };
 
-  // --- 3. Loading and Empty States ---
+  if (isLoading) return <LoadingSpinner />;
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-[50vh] text-xl text-green-700">
-        <TbFidgetSpinner className="animate-spin mr-2" /> Loading
-        Scholarships...
-      </div>
-    );
-  }
-
-  if (scholarships.length === 0) {
-    return (
-      <div className="text-center p-10 bg-gray-50 rounded-lg shadow-inner">
-        <h2 className="text-2xl font-bold text-gray-700">
-          No Scholarships Found
-        </h2>
-        <p className="text-gray-500 mt-2">
-          It looks like no scholarships have been added yet.
-        </p>
-        <button
-          onClick={() => navigate("/dashboard/add-scholarship")}
-          className="mt-4 btn bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg flex items-center mx-auto"
-        >
-          <FaPlus className="mr-2" /> Add New Scholarship
-        </button>
-      </div>
-    );
-  }
-
-  // --- 4. Main Component Render ---
   return (
-    <div className="p-4 sm:p-8 min-h-screen bg-gray-50">
-      <Toaster position="top-center" reverseOrder={false} />
+    <div className="p-8 bg-gray-50 min-h-screen">
+      <div className="max-w-6xl mx-auto bg-white shadow-md rounded-xl overflow-hidden">
+        <div className="p-6 border-b bg-green-700 text-white">
+          <h2 className="text-2xl font-bold">Manage Scholarships</h2>
+          <p className="text-sm opacity-80">
+            Total Scholarships: {scholarships.length}
+          </p>
+        </div>
 
-      <div className="flex justify-between items-center mb-6 border-b pb-3">
-        <h1 className="text-4xl font-extrabold text-green-700">
-          📜 Manage All Scholarships ({scholarships.length})
-        </h1>
-        <button
-          onClick={() => navigate("/dashboard/add-scholarship")}
-          className="btn bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg flex items-center shadow-lg transition duration-150"
-        >
-          <FaPlus className="mr-2" /> Add New
-        </button>
-      </div>
-
-      <div className="overflow-x-auto bg-white shadow-xl rounded-lg">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-green-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
-                #
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
-                Scholarship Name
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
-                University / Location
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
-                Category
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
-                Tuition
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {scholarships.map((scholarship, index) => (
-              <tr key={scholarship.id || index} className="hover:bg-gray-50">
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {index + 1}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm font-medium text-gray-900">
-                    {scholarship.scholarshipName}
-                  </div>
-                  <div className="text-xs text-gray-500 mt-0.5">
-                    {scholarship.degree}
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900">
-                    {scholarship.universityName}
-                  </div>
-                  <div className="text-xs text-gray-500 mt-0.5">
-                    {scholarship.city}, {scholarship.country} (Rank:{" "}
-                    {scholarship.worldRank || "N/A"})
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {scholarship.scholarshipCategory}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-600">
-                  {scholarship.tuitionFees}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <div className="flex space-x-2">
-                    <button
-                      onClick={() => handleUpdate(scholarship.id)}
-                      className="text-indigo-600 hover:text-indigo-900 p-2 rounded-full hover:bg-indigo-50 transition"
-                      title="Edit Scholarship"
-                    >
-                      <FaEdit className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(scholarship.id)}
-                      className="text-red-600 hover:text-red-900 p-2 rounded-full hover:bg-red-50 transition"
-                      title="Delete Scholarship"
-                    >
-                      <FaTrash className="w-4 h-4" />
-                    </button>
-                  </div>
-                </td>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead className="bg-gray-100 text-gray-700 uppercase text-xs font-semibold">
+              <tr>
+                <th className="p-4">#</th>
+                <th className="p-4">Scholarship Name</th>
+                <th className="p-4">University</th>
+                <th className="p-4">Subject</th>
+                <th className="p-4">Degree</th>
+                <th className="p-4">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y">
+              {scholarships.map((item, index) => (
+                <tr
+                  key={item._id}
+                  className="hover:bg-gray-50 transition-colors"
+                >
+                  <td className="p-4 font-medium">{index + 1}</td>
+                  <td className="p-4">
+                    <div className="flex items-center gap-3">
+                      <img
+                        src={item.image}
+                        alt=""
+                        className="w-10 h-10 rounded-lg object-cover"
+                      />
+                      <span className="font-semibold text-gray-800">
+                        {item.scholarshipName}
+                      </span>
+                    </div>
+                  </td>
+                  <td className="p-4 text-gray-600">{item.universityName}</td>
+                  <td className="p-4 text-gray-600">
+                    <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs">
+                      {item.subjectCategory}
+                    </span>
+                  </td>
+                  <td className="p-4 text-gray-600">{item.degree}</td>
+                  <td className="p-4">
+                    <div className="flex gap-3">
+                      <button
+                        title="Update"
+                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                      >
+                        <FaEdit size={18} />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(item._id)}
+                        title="Delete"
+                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      >
+                        <FaTrashAlt size={18} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

@@ -1,255 +1,133 @@
-import React, { useState, useEffect } from "react";
-import toast, { Toaster } from "react-hot-toast";
-import { FaTrash, FaUserEdit, FaFilter } from "react-icons/fa";
-import { TbFidgetSpinner } from "react-icons/tb";
-
-// --- Placeholder for API Base URL ---
-// NOTE: Adjust this URL to your actual backend user management endpoint
-const USER_API_URL = "http://localhost:3000/users";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import useAxiosSecure from "../../hooks/useAxiosSecure";
+import LoadingSpinner from "../../Components/LoadingSpinner";
+import { FaTrashAlt, FaUserEdit } from "react-icons/fa";
+import Swal from "sweetalert2";
+import toast from "react-hot-toast";
+import { useState } from "react";
 
 const ManageUsers = () => {
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [filterRole, setFilterRole] = useState("All"); // State for the filter dropdown
+  const axiosSecure = useAxiosSecure();
+  const queryClient = useQueryClient();
+  const [filter, setFilter] = useState("All");
 
-  // Available roles for filtering and updating
-  const roles = ["All", "Student", "Moderator", "Admin"];
-
-  // --- 1. Fetch Data Function ---
-  const fetchUsers = async () => {
-    setLoading(true);
-    try {
-      const response = await fetch(USER_API_URL); // Fetch all users initially
-      if (!response.ok) {
-        throw new Error(`Failed to fetch users: ${response.statusText}`);
-      }
-      const data = await response.json();
-      // NOTE: Assuming the fetched user data has an 'id', 'email', 'name', and 'role' field
-      setUsers(data);
-    } catch (error) {
-      console.error("Fetch Error:", error);
-      toast.error(`Error loading user data: ${error.message}`);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchUsers();
-  }, []);
-
-  // --- 2. Action Handlers ---
-
-  const handleChangeRole = async (userId, newRole) => {
-    if (
-      !window.confirm(
-        `Are you sure you want to change this user's role to ${newRole}?`
-      )
-    ) {
-      return;
-    }
-
-    const updateToastId = toast.loading(`Updating role to ${newRole}...`);
-
-    try {
-      // NOTE: Ensure your backend supports PATCH or PUT for role updates
-      const response = await fetch(`${USER_API_URL}/${userId}/role`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          // Add auth headers if required
-        },
-        body: JSON.stringify({ role: newRole }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Role update failed: ${response.statusText}`);
-      }
-
-      // Optimistically update the UI or re-fetch data for accuracy
-      setUsers((prev) =>
-        prev.map((user) =>
-          user.id === userId ? { ...user, role: newRole } : user
-        )
+  // ডাটা ফেচ করা
+  const { data: users = [], isLoading } = useQuery({
+    queryKey: ["users", filter],
+    queryFn: async () => {
+      const { data } = await axiosSecure.get(
+        `http://localhost:3000/users?role=${filter}`
       );
+      return data;
+    },
+  });
 
-      toast.success(`Role updated to ${newRole} successfully!`, {
-        id: updateToastId,
-      });
-    } catch (error) {
-      console.error("Role Update Error:", error);
-      toast.error(`Failed to update role: ${error.message}`, {
-        id: updateToastId,
-      });
-    }
+  // রোল চেঞ্জ মিউটেশন
+  const { mutateAsync: updateRole } = useMutation({
+    mutationFn: async ({ id, role }) => {
+      const { data } = await axiosSecure.patch(
+        `http://localhost:3000/users/role/${id}`,
+        { role }
+      );
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["users"]);
+      toast.success("User role updated!");
+    },
+  });
+
+  // ইউজার ডিলিট মিউটেশন
+  const { mutateAsync: deleteUser } = useMutation({
+    mutationFn: async (id) => {
+      const { data } = await axiosSecure.delete(
+        `http://localhost:3000/users/${id}`
+      );
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["users"]);
+      toast.success("User deleted successfully!");
+    },
+  });
+
+  const handleRoleChange = async (id, newRole) => {
+    await updateRole({ id, role: newRole });
   };
 
-  const handleDeleteUser = async (userId, userName) => {
-    if (
-      !window.confirm(`Are you sure you want to delete the user: ${userName}?`)
-    ) {
-      return;
-    }
-
-    const deleteToastId = toast.loading("Deleting user...");
-
-    try {
-      const response = await fetch(`${USER_API_URL}/${userId}`, {
-        method: "DELETE",
-        // Add auth headers if required
-      });
-
-      if (!response.ok) {
-        throw new Error(`Deletion failed: ${response.statusText}`);
-      }
-
-      // Update the UI by filtering out the deleted user
-      setUsers((prev) => prev.filter((user) => user.id !== userId));
-
-      toast.success(`🗑️ User ${userName} deleted successfully!`, {
-        id: deleteToastId,
-      });
-    } catch (error) {
-      console.error("Delete Error:", error);
-      toast.error(`Failed to delete user: ${error.message}`, {
-        id: deleteToastId,
-      });
-    }
+  const handleDelete = (id) => {
+    Swal.fire({
+      title: "Are you sure?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, delete!",
+    }).then(async (result) => {
+      if (result.isConfirmed) await deleteUser(id);
+    });
   };
 
-  // --- 3. Filtering Logic ---
-  const filteredUsers = users.filter(
-    (user) => filterRole === "All" || user.role === filterRole
-  );
+  if (isLoading) return <LoadingSpinner />;
 
-  // --- 4. Loading and Empty States ---
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-[50vh] text-xl text-indigo-700">
-        <TbFidgetSpinner className="animate-spin mr-2" /> Loading Users...
-      </div>
-    );
-  }
-
-  // --- 5. Main Component Render ---
   return (
-    <div className="p-4 sm:p-8 min-h-screen bg-gray-50">
-      <Toaster position="top-center" reverseOrder={false} />
-
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 border-b pb-3">
-        <h1 className="text-4xl font-extrabold text-indigo-700 mb-4 md:mb-0">
-          👥 Manage Platform Users ({filteredUsers.length} / {users.length})
-        </h1>
-
-        {/* Role Filter Dropdown */}
-        <div className="flex items-center space-x-3 bg-white p-2 rounded-lg shadow-sm border">
-          <FaFilter className="text-gray-500" />
-          <label
-            htmlFor="role-filter"
-            className="text-sm font-medium text-gray-700 sr-only"
-          >
-            Filter by Role
-          </label>
-          <select
-            id="role-filter"
-            value={filterRole}
-            onChange={(e) => setFilterRole(e.target.value)}
-            className="select border-none focus:ring-0 focus:outline-none pr-8 bg-transparent text-sm font-semibold text-indigo-600"
-          >
-            {roles.map((role) => (
-              <option key={role} value={role}>
-                {role}
-              </option>
-            ))}
-          </select>
-        </div>
+    <div className="p-6">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold text-green-800">Manage Users</h2>
+        {/* ফিল্টার ড্রপডাউন */}
+        <select
+          className="select select-bordered w-full max-w-xs border-green-500 focus:ring-green-500"
+          onChange={(e) => setFilter(e.target.value)}
+        >
+          <option value="All">All Roles</option>
+          <option value="Student">Student</option>
+          <option value="Moderator">Moderator</option>
+          <option value="Admin">Admin</option>
+        </select>
       </div>
 
-      <div className="overflow-x-auto bg-white shadow-xl rounded-lg">
-        {filteredUsers.length === 0 ? (
-          <p className="p-6 text-center text-gray-500">
-            No users found matching the '{filterRole}' filter.
-          </p>
-        ) : (
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-indigo-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
-                  Name
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
-                  Email
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
-                  Current Role
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
-                  Change Role
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
-                  Actions
-                </th>
+      <div className="overflow-x-auto bg-white rounded-lg shadow">
+        <table className="table w-full">
+          <thead>
+            <tr className="bg-green-100 text-green-900">
+              <th>Name</th>
+              <th>Email</th>
+              <th>Current Role</th>
+              <th>Change Role</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {users.map((user) => (
+              <tr key={user._id}>
+                <td>{user.name}</td>
+                <td>{user.email}</td>
+                <td>
+                  <span className="badge badge-ghost font-semibold">
+                    {user.role}
+                  </span>
+                </td>
+                <td>
+                  <select
+                    defaultValue={user.role}
+                    className="select select-sm select-ghost border-gray-300"
+                    onChange={(e) => handleRoleChange(user._id, e.target.value)}
+                  >
+                    <option value="Student">Student</option>
+                    <option value="Moderator">Moderator</option>
+                    <option value="Admin">Admin</option>
+                  </select>
+                </td>
+                <td>
+                  <button
+                    onClick={() => handleDelete(user._id)}
+                    className="btn btn-ghost text-red-600"
+                  >
+                    <FaTrashAlt size={18} />
+                  </button>
+                </td>
               </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {filteredUsers.map((user) => (
-                <tr key={user.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">
-                      {user.name || "N/A"}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {user.email}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span
-                      className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        user.role === "Admin"
-                          ? "bg-red-100 text-red-800"
-                          : user.role === "Moderator"
-                          ? "bg-yellow-100 text-yellow-800"
-                          : "bg-green-100 text-green-800"
-                      }`}
-                    >
-                      {user.role}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {/* Role Change Dropdown */}
-                    <select
-                      value={user.role}
-                      onChange={(e) =>
-                        handleChangeRole(user.id, e.target.value)
-                      }
-                      className="p-2 border border-gray-300 rounded-md text-sm bg-white focus:ring-indigo-500 focus:border-indigo-500"
-                    >
-                      {roles
-                        .filter((r) => r !== "All")
-                        .map((role) => (
-                          <option key={role} value={role}>
-                            {role}
-                          </option>
-                        ))}
-                    </select>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <button
-                      onClick={() =>
-                        handleDeleteUser(user.id, user.name || user.email)
-                      }
-                      className="text-red-600 hover:text-red-900 p-2 rounded-full hover:bg-red-50 transition"
-                      title="Delete User"
-                    >
-                      <FaTrash className="w-4 h-4" />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );

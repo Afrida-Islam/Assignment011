@@ -110,7 +110,7 @@ const SelectField = ({ label, name, options, error, register }) => (
   </div>
 );
 
-const ScholarshipForm = () => {
+const AddScholarship = () => {
   const { user } = useAuth();
   const navigate = useNavigate(); // Hook for redirection
   const [loading, setLoading] = useState(false); // Local loading state for fetch
@@ -325,4 +325,4 @@ const ScholarshipForm = () => {
   );
 };
 
-export default ScholarshipForm;
+export default AddScholarship;
