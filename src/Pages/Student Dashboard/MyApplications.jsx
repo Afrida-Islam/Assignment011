@@ -43,15 +43,14 @@ const MyApplications = () => {
     <>
       <div className="container mx-auto px-4 sm:px-8">
         <div className="py-8">
-          <h2 className="text-3xl font-semibold leading-tight text-gray-800 mb-6">
+          <h2 className="text-5xl font-bold leading-tight text-green-800 mb-6">
             My Scholarship Applications
           </h2>
-          <div className="-mx-4 sm:-mx-8 px-4 sm:px-8 py-4 overflow-x-auto">
+          <div className="mx-4 sm:-mx-8 px-4 sm:px-8 py-4 overflow-x-auto">
             <div className="inline-block min-w-full shadow rounded-lg overflow-hidden">
               <table className="min-w-full leading-normal">
                 <thead>
                   <tr>
-                    {/* NEW COLUMNS START HERE */}
                     <th
                       scope="col"
                       className="px-5 py-3 bg-gray-100 border-b border-gray-200 text-gray-800 text-left text-sm uppercase font-semibold"
@@ -100,14 +99,13 @@ const MyApplications = () => {
                     >
                       Actions
                     </th>
-                    {/* NEW COLUMNS END HERE */}
                   </tr>
                 </thead>
                 <tbody>
                   {applications.map((application) => (
                     <StudentApplicationDataRow
                       key={application._id}
-                      application={application} // Renamed prop to 'application' for consistency
+                      application={application}
                     />
                   ))}
                 </tbody>

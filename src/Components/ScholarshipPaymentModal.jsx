@@ -18,6 +18,8 @@ const ScholarshipPaymentModal = ({ closeModal, isOpen = false, model }) => {
     _id,
     scholarshipName,
     universityName,
+    country,
+    city,
     applicationFees,
     serviceCharge,
     subjectCategory,
@@ -28,11 +30,12 @@ const ScholarshipPaymentModal = ({ closeModal, isOpen = false, model }) => {
 
   const handlePayment = async () => {
     const scholarshipInfo = {
-      // FIX: Change key name from 'plantId' to 'versityId' 
-      versityId: _id, // <-- Use the correct key name here
+      versityId: _id,
       name: `Application for ${scholarshipName}`,
       description: `Application Fee + Service Charge for ${scholarshipName} at ${universityName}`,
       price: totalPayment,
+      city: city,
+      country: country,
       category: subjectCategory,
       image: universityImage,
       quantity: 1,
@@ -44,13 +47,12 @@ const ScholarshipPaymentModal = ({ closeModal, isOpen = false, model }) => {
     };
 
     // ... rest of the axios call and redirection
-    const {data} = await axios.post(
+    const { data } = await axios.post(
       `http://localhost:3000/create-checkout-session`,
       scholarshipInfo
     );
     window.location.href = data.url;
     // console.log(result);
-    
   };
 
   return (
@@ -80,10 +82,13 @@ const ScholarshipPaymentModal = ({ closeModal, isOpen = false, model }) => {
               <p className="text-sm text-gray-600">
                 University: {universityName}
               </p>
+
               <p className="text-sm text-gray-600">
                 Subject: {subjectCategory}
               </p>
-
+              <p className="text-sm text-gray-600">
+                University Address: {city}, {country}
+              </p>
               <hr className="my-3" />
 
               <div className="flex justify-between text-sm text-gray-500">

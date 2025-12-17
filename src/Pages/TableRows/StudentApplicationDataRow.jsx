@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import DetailsModal from "../Actions/DetailsModal";
-import EditApplicationModal from "../Actions/EditApplicationModal";
-import PayModal from "../Actions/PayModal";
-import AddReviewModal from "../Actions/AddReviewModal";
+import DetailsModal from "../Student Dashboard/Actions/DetailsModal";
+import EditApplicationModal from "../Student Dashboard/Actions/EditApplicationModal";
+import PayModal from "../Student Dashboard/Actions/PayModal";
+import AddReviewModal from "../Student Dashboard/Actions/AddReviewModal";
 // --- END: Import Placeholder Modals ---
 
 const StudentApplicationDataRow = ({ application }) => {
@@ -46,19 +46,19 @@ const StudentApplicationDataRow = ({ application }) => {
     _id,
     scholarshipName,
     universityName,
-    universityAddress,
+    universityImage,
+    universityCity,
+    universityCountry,
     subjectCategory,
     amountPaid,
-    status, // Application Status (e.g., "pending", "completed")
+    status,
     feedback,
-    // *** ASSUMING THESE FIELDS EXIST in the application object for full logic ***
-    paymentStatus = "unpaid", // Must be 'paid' or 'unpaid'
-    review = null, // Check if a review object/content exists
+
+    paymentStatus = "unpaid",
+    review = null,
   } = application || {};
 
   const applicationStatus = status?.toLowerCase();
-
-  // Conditional Logic Variables
   const isPending = applicationStatus === "pending";
   const isCompleted = applicationStatus === "completed";
   const isUnpaid = paymentStatus?.toLowerCase() === "unpaid";
@@ -120,10 +120,18 @@ const StudentApplicationDataRow = ({ application }) => {
       <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
         <p className="text-gray-900 font-medium">{universityName}</p>
       </td>
+      <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+        <img
+          src={universityImage}
+          className="w-20 h-20 object-cover opacity-80 "
+        />
+      </td>
 
       {/* 2. University Address */}
       <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-        <p className="text-gray-600 text-xs">{universityAddress}</p>
+        <p className="text-gray-600 text-xs">
+          {universityCity},{universityCountry}
+        </p>
       </td>
       <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
         <p className="text-gray-900">{subjectCategory}</p>
@@ -225,13 +233,6 @@ const StudentApplicationDataRow = ({ application }) => {
         closeModal={() => closeModal("pay")}
         application={application}
       />
-
-      {/* Delete Modal (Uses existing component, updated logic) */}
-      {/* <DeleteModal
-        isOpen={isDeleteOpen}
-        closeModal={() => closeModal("delete")}
-        applicationId={_id}
-      /> */}
 
       {/* Add Review Modal */}
       <AddReviewModal

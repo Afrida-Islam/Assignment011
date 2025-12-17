@@ -63,8 +63,15 @@ const PaymentSuccess = () => {
       </div>
     );
   }
-  const { scholarshipName, universityName, amountPaid, transactionId } =
-    paymentDetails;
+  const {
+    scholarshipName,
+    universityName,
+    universityImage,
+    universityCity,
+    universityCountry,
+    amountPaid,
+    transactionId,
+  } = paymentDetails;
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
@@ -83,18 +90,25 @@ const PaymentSuccess = () => {
           <h2 className="text-xl font-semibold border-b pb-2 text-gray-700">
             Order Summary
           </h2>
-
+          <div className="flex justify-center">
+            <img
+              src={universityImage}
+              className="w-20 h-20 object-cover opacity-80 "
+            />
+          </div>
           <div className="flex justify-between">
             <span className="text-gray-500">Scholarship:</span>
-            <span className="font-medium text-gray-800">
-              {scholarshipName || "N/A"}
-            </span>
+            <span className="font-medium text-gray-800">{scholarshipName}</span>
           </div>
 
           <div className="flex justify-between">
             <span className="text-gray-500">University:</span>
+            <span className="font-medium text-gray-800">{universityName}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-500">University Address:</span>
             <span className="font-medium text-gray-800">
-              {universityName || "N/A"}
+              {universityCity}, {universityCountry}
             </span>
           </div>
 
