@@ -1,11 +1,11 @@
 import Container from "./Container";
 import { AiOutlineMenu } from "react-icons/ai";
 import { useState } from "react";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
 import avatarImg from "../../assets/download.jpeg";
 import logo from "../../assets/logo.webp";
-const Navbar = () => {
+const Navber = () => {
   const { user, logOut } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -113,4 +113,4 @@ const Navbar = () => {
   );
 };
 
-export default Navbar;
+export default Navber;
