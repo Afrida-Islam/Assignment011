@@ -24,7 +24,6 @@ const Sidebar = () => {
 
   return (
     <>
-      {/* Mobile Navbar */}
       <div className="bg-green-800 text-white flex justify-between md:hidden p-4">
         <Link to="/">
           <img src={logo} alt="logo" className="w-10" />
@@ -43,7 +42,7 @@ const Sidebar = () => {
       >
         <div>
           {/* Logo Section */}
-          <div className="hidden md:flex p-4 shadow-sm rounded-lg justify-center items-center bg-green-50 mx-2">
+          <div className="hidden md:flex p-4 shadow-sm rounded-lg justify-center items-center bg-green-50 mx-4">
             <Link to="/">
               <img src={logo} alt="logo" className="w-24" />
             </Link>
@@ -51,8 +50,13 @@ const Sidebar = () => {
 
           <nav className="mt-6">
             {/* Common Menu: Statistics */}
-            <MenuItem icon={BsGraphUp} label="Dashboard Home" address="/" />
-
+            <Link to="/">
+              <MenuItem
+                icon={BsGraphUp}
+                label="Dashboard Home"
+                address="/dashboard"
+              />
+            </Link>
             {/* Role Based Menus */}
             {role === "Admin" && <AdminMenu />}
             {role === "Moderator" && <ModeratorMenu />}
@@ -68,13 +72,15 @@ const Sidebar = () => {
             label="My Profile"
             address="/dashboard/profile"
           />
-          <button
-            onClick={logOut}
-            className="flex w-full items-center px-4 py-2 mt-2 text-gray-600 hover:bg-red-50 hover:text-red-700 transition-colors duration-300 rounded-lg"
-          >
-            <GrLogout className="w-5 h-5" />
-            <span className="mx-4 font-medium">Logout</span>
-          </button>
+          <Link to="/">
+            <button
+              onClick={logOut}
+              className="flex w-full items-center px-4 py-2 mt-2 text-gray-600 hover:bg-red-50 hover:text-red-700 transition-colors duration-300 rounded-lg"
+            >
+              <GrLogout className="w-5 h-5" />
+              <span className="mx-4 font-medium">Logout</span>
+            </button>
+          </Link>
         </div>
       </div>
     </>
