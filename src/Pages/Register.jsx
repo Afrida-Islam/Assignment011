@@ -1,4 +1,4 @@
-import { Link, useLocation, useNavigate } from "react-router-dom"; // Use react-router-dom for imports
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
 import useAuth from "../hooks/useAuth";
 import { toast } from "react-hot-toast";
@@ -11,13 +11,13 @@ const Register = () => {
     useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const from = location.state?.from || "/"; // Check for .from property
+  const from = location.state?.from || "/";
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-    reset, // Added reset for potential future use
+    reset,
   } = useForm();
 
   console.log(errors);
@@ -27,17 +27,10 @@ const Register = () => {
     const imageFile = image[0];
 
     try {
-      // 1. Create User. If this fails, the process stops before image upload.
       const result = await createUser(email, password);
 
       let user = await result.user;
-
-      // console.log(user.accessToken);
-
-      // 2. Upload Image
       const imageURL = await imageUpload(imageFile);
-
-      // 3. Update Profile and Save User Data
       await updateUserProfile(name, imageURL);
       let userInfo = await saveOrUpdateUser(
         { name, email, image: imageURL },
