@@ -1,4 +1,5 @@
-Scholarship Management Platform
+          Scholarship Management Platform
+
 ScholarStream is a MERN-stack platform connecting students with global scholarships through a centralized discovery and application system. The platform features a role-based dashboard for Admins, Moderators, and Students to manage users, review applications, and track funding. Key features include advanced server-side search/filtering, secure Stripe payment integration, and dynamic analytics charts. It is built with React, Node.js, Express, and MongoDB, utilizing JWT for secure authentication and private route protection. The UI is crafted with Tailwind CSS and DaisyUI, featuring smooth Framer Motion animations and full responsiveness. Essential npm packages used include axios, stripe, framer-motion, tanstack/react-query, react-hook-form, and recharts.
 
 Live URL: https://assignment011-dkra.vercel.app/
