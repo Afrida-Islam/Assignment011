@@ -12,10 +12,14 @@ export const imageUpload = async (imageData) => {
 };
 
 export const saveOrUpdateUser = async (userData, token) => {
-  const { data } = await axios.post(`http://localhost:3000/user`, userData, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  const { data } = await axios.post(
+    `https://serverside11.vercel.app/user`,
+    userData,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
   return data;
 };

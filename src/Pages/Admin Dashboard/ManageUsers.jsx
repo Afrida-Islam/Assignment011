@@ -21,7 +21,7 @@ const ManageUsers = () => {
     queryKey: ["users", filter],
     queryFn: async () => {
       const { data } = await axiosSecure.get(
-        `http://localhost:3000/users?role=${filter}`
+        `https://serverside11.vercel.app/users?role=${filter}`
       );
       return data;
     },
@@ -32,7 +32,7 @@ const ManageUsers = () => {
   const { mutateAsync: updateRole } = useMutation({
     mutationFn: async ({ id, role }) => {
       const { data } = await axiosSecure.patch(
-        `http://localhost:3000/users/role/${id}`,
+        `https://serverside11.vercel.app/users/role/${id}`,
         { role }
       );
       return data;
@@ -46,7 +46,7 @@ const ManageUsers = () => {
   const { mutateAsync: deleteUser } = useMutation({
     mutationFn: async (id) => {
       const { data } = await axiosSecure.delete(
-        `http://localhost:3000/users/${id}`
+        `https://serverside11.vercel.app/users/${id}`
       );
       return data;
     },

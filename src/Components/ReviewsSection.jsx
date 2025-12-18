@@ -64,7 +64,10 @@ const ReviewsSection = ({
 
     try {
       // এই URL টি আপনার ব্যাক-এন্ডের রিভিউ পোস্ট করার API রুট হবে
-      await axios.post(`http://localhost:3000/api/reviews/submit`, reviewData);
+      await axios.post(
+        `https://serverside11.vercel.app/api/reviews/submit`,
+        reviewData
+      );
 
       alert("Review submitted successfully!");
       setRating(0);

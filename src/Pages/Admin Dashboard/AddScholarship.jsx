@@ -162,13 +162,16 @@ const AddScholarship = () => {
       };
 
       // 2.3. Call the fetch API
-      const response = await fetch("http://localhost:3000/create-scholarship", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(scholarshipData),
-      });
+      const response = await fetch(
+        "https://serverside11.vercel.app/create-scholarship",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(scholarshipData),
+        }
+      );
 
       // 2.4. Handle response
       if (!response.ok) {

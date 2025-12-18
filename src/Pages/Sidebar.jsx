@@ -74,6 +74,7 @@ const Sidebar = () => {
           />
           <button
             onClick={logOut}
+            address="/"
             className="flex w-full items-center px-4 py-2 mt-2 text-gray-600 hover:bg-red-50 hover:text-red-700 transition-colors duration-300 rounded-lg"
           >
             <GrLogout className="w-5 h-5" />

@@ -22,7 +22,7 @@ const Analytics = () => {
     queryKey: ["admin-stats"],
     queryFn: async () => {
       const { data } = await axiosSecure.get(
-        "http://localhost:3000/admin-stats"
+        "https://serverside11.vercel.app/admin-stats"
       );
       return data;
     },

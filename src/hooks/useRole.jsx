@@ -11,7 +11,7 @@ const useRole = () => {
     queryKey: ["role", user?.email],
     queryFn: async () => {
       const { data } = await axiosSecure(
-        `http://localhost:3000/user/role/${user?.email}`
+        `https://serverside11.vercel.app/user/role/${user?.email}`
       );
       // console.log(result);
       return data.role;

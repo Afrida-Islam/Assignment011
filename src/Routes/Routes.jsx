@@ -14,7 +14,10 @@ import ManageScholarships from "../Pages/Admin Dashboard/ManageScholarships";
 import ManageUsers from "../Pages/Admin Dashboard/ManageUsers";
 import PaymentSuccess from "../Pages/PaymentSuccess";
 import MyApplications from "../Pages/Student Dashboard/MyApplications";
+import MyReviews from "../Pages/Student Dashboard/MyReviews";
 import Analytics from "../Pages/Admin Dashboard/Analytics";
+import ManageApplications from "../Pages/TableRows/Moderator Dashboard/ManageApplications";
+import AllReviews from "../Pages/TableRows/Moderator Dashboard/AllReviews";
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -37,43 +40,18 @@ export const router = createBrowserRouter([
         path: "/signup",
         Component: Register,
       },
-      // {
-      //   path: "/profile",
-      //   Component: Profile,
-      // },
-      // {
-      //   path: "/dashboard/add-scholarship",
-      //   Component: AddScholarship,
-      // },
 
-      // {
-      //   path: "dashboard/manage-scholarships",
-      //   Component: ManageScholarships,
-      // },
-      // {
-      //   path: "/dashboard/ManageUsers",
-      //   Component: ManageUsers,
-      // },
       {
         path: "/scholarships",
         Component: Allscholarship,
-        loader: () => fetch(`http://localhost:3000/scholarship`),
+        loader: () => fetch(`https://serverside11.vercel.app/scholarship`),
       },
       {
         path: "/scholarshipdetails/:_id",
         Component: ScholarshipDetailsPage,
         loader: ({ params }) =>
-          fetch(`http://localhost:3000/scholarship/${params._id}`),
+          fetch(`https://serverside11.vercel.app/scholarship/${params._id}`),
       },
-
-      // {
-      //   path: "/dashboard",
-      //   Component: DashboardLayout,
-      // },
-      // {
-      //   path: "/my-applications",
-      //   Component: MyApplications,
-      // },
     ],
   },
   {
@@ -89,15 +67,15 @@ export const router = createBrowserRouter([
       { path: "analytics", element: <Analytics /> },
 
       // Moderator Routes
-      // {
-      //   path: "manage-applied-applications",
-      //   element: <ManageAppliedApplications />,
-      // },
-      // { path: "all-reviews", element: <AllReviews /> },
+      {
+        path: "manage-applied-applications",
+        element: <ManageApplications />,
+      },
+      { path: "all-reviews", element: <AllReviews /> },
 
       // Student Routes
       { path: "my-applications", element: <MyApplications /> },
-      // { path: "my-reviews", element: <MyReviews /> },
+      { path: "my-reviews", element: <MyReviews /> },
     ],
   },
 ]);

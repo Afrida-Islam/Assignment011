@@ -48,7 +48,7 @@ const ScholarshipPaymentModal = ({ closeModal, isOpen = false, model }) => {
 
     // ... rest of the axios call and redirection
     const { data } = await axios.post(
-      `http://localhost:3000/create-checkout-session`,
+      `https://serverside11.vercel.app/create-checkout-session`,
       scholarshipInfo
     );
     window.location.href = data.url;

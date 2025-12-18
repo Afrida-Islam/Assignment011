@@ -21,7 +21,7 @@ const PaymentSuccess = () => {
     if (sessionId) {
       setLoading(true);
       axios
-        .post(`http://localhost:3000/payment-success`, {
+        .post(`https://serverside11.vercel.app/payment-success`, {
           sessionId,
         })
         .then((response) => {

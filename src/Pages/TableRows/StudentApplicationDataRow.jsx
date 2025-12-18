@@ -4,20 +4,16 @@ import DetailsModal from "../Student Dashboard/Actions/DetailsModal";
 import EditApplicationModal from "../Student Dashboard/Actions/EditApplicationModal";
 import PayModal from "../Student Dashboard/Actions/PayModal";
 import AddReviewModal from "../Student Dashboard/Actions/AddReviewModal";
-// --- END: Import Placeholder Modals ---
 
 const StudentApplicationDataRow = ({ application }) => {
   const [searchParams] = useSearchParams();
   const highlightId = searchParams.get("highlight");
-
-  // Replaced the single 'isOpen' with states for all modals
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isPayOpen, setIsPayOpen] = useState(false);
   const [isReviewOpen, setIsReviewOpen] = useState(false);
 
-  // Unified closeModal handler
   const closeModal = (modalName) => {
     switch (modalName) {
       case "delete":
@@ -49,7 +45,7 @@ const StudentApplicationDataRow = ({ application }) => {
     universityImage,
     universityCity,
     universityCountry,
-    subjectCategory,
+    category,
     amountPaid,
     status,
     feedback,
@@ -134,7 +130,7 @@ const StudentApplicationDataRow = ({ application }) => {
         </p>
       </td>
       <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-        <p className="text-gray-900">{subjectCategory}</p>
+        <p className="text-gray-900">{category}</p>
       </td>
 
       {/* 4. Application Fees (Amount Paid) */}

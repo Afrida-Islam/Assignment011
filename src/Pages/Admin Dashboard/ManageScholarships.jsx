@@ -12,7 +12,7 @@ const ManageScholarships = () => {
     queryKey: ["all-scholarships"],
     queryFn: async () => {
       const { data } = await axiosSecure.get(
-        "http://localhost:3000/scholarship"
+        "https://serverside11.vercel.app/scholarship"
       );
       return data;
     },
@@ -22,7 +22,7 @@ const ManageScholarships = () => {
   const { mutateAsync: deleteScholarship } = useMutation({
     mutationFn: async (id) => {
       const { data } = await axiosSecure.delete(
-        `http://localhost:3000/scholarship/${id}`
+        `https://serverside11.vercel.app/scholarship/${id}`
       );
       return data;
     },

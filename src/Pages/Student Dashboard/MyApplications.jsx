@@ -3,118 +3,83 @@ import StudentApplicationDataRow from "../../Pages/TableRows/StudentApplicationD
 import useAuth from "../../hooks/useAuth";
 import LoadingSpinner from "../../Components/LoadingSpinner";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
+import { useState } from "react";
+import AddReviewModal from "./Actions/AddReviewModal";
 
 const MyApplications = () => {
   const { user } = useAuth();
   const axiosSecure = useAxiosSecure();
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+  const [selectedApplication, setSelectedApplication] = useState(null);
 
-  // Note: Assuming your backend returns { applications: [...] }
-  const { data: applications = [], isLoading } = useQuery({
+  const {
+    data: applications = [],
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: ["applications", user?.email],
+    enabled: !!user?.email,
     queryFn: async () => {
-      const result = await axiosSecure(`http://localhost:3000/my-applications`);
-
-      console.log("Res: " + result.data);
-      return Array.isArray(result.data)
-        ? result.data
-        : result.data.applications || [];
+      const result = await axiosSecure.get(
+        `https://serverside11.vercel.app/my-applications/${user?.email}`
+      );
+      return result.data;
     },
   });
-
-  console.log(applications);
+  const openReviewModal = (application) => {
+    setSelectedApplication(application);
+    setIsReviewModalOpen(true);
+  };
 
   if (isLoading) return <LoadingSpinner />;
 
-  // // Display message if no applications are found
-  // if (applications.length === 0) {
-  //   return (
-  //     <div className="flex flex-col items-center justify-center p-10 h-[50vh] bg-gray-50">
-  //       <h1 className="text-2xl font-bold text-gray-700 mb-4">
-  //         No Applications Found
-  //       </h1>
-  //       <p className="text-gray-500">
-  //         You have not submitted any scholarship applications yet.
-  //       </p>
-  //     </div>
-  //   );
-  // }
-
   return (
-    <>
-      <div className="container mx-auto px-4 sm:px-8">
-        <div className="py-8">
-          <h2 className="text-5xl font-bold leading-tight text-green-800 mb-6">
-            My Scholarship Applications
-          </h2>
-          <div className="mx-4 sm:-mx-8 px-4 sm:px-8 py-4 overflow-x-auto">
-            <div className="inline-block min-w-full shadow rounded-lg overflow-hidden">
-              <table className="min-w-full leading-normal">
-                <thead>
-                  <tr>
-                    <th
-                      scope="col"
-                      className="px-5 py-3 bg-gray-100 border-b border-gray-200 text-gray-800 text-left text-sm uppercase font-semibold"
-                    >
-                      Scholarship Name
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-5 py-3 bg-gray-100 border-b border-gray-200 text-gray-800 text-left text-sm uppercase font-semibold"
-                    >
-                      University Name
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-5 py-3 bg-gray-100 border-b border-gray-200 text-gray-800 text-left text-sm uppercase font-semibold"
-                    >
-                      University Address
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-5 py-3 bg-gray-100 border-b border-gray-200 text-gray-800 text-left text-sm uppercase font-semibold"
-                    >
-                      Subject Category
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-5 py-3 bg-gray-100 border-b border-gray-200 text-gray-800 text-left text-sm uppercase font-semibold"
-                    >
-                      Fees Paid
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-5 py-3 bg-gray-100 border-b border-gray-200 text-gray-800 text-left text-sm uppercase font-semibold"
-                    >
-                      Application Status
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-5 py-3 bg-gray-100 border-b border-gray-200 text-gray-800 text-left text-sm uppercase font-semibold"
-                    >
-                      Feedback (Moderator)
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-5 py-3 bg-gray-100 border-b border-gray-200 text-gray-800 text-left text-sm uppercase font-semibold"
-                    >
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {applications.map((application) => (
-                    <StudentApplicationDataRow
-                      key={application._id}
-                      application={application}
-                    />
-                  ))}
-                </tbody>
-              </table>
-            </div>
+    <div className="container mx-auto px-4 sm:px-8">
+      <div className="py-8">
+        <h2 className="text-5xl font-bold leading-tight text-green-800 mb-6">
+          My Scholarship Applications
+        </h2>
+        <div className="mx-4 sm:-mx-8 px-4 sm:px-8 py-4 overflow-x-auto">
+          <div className="inline-block min-w-full shadow rounded-lg overflow-hidden border border-gray-200">
+            <table className="min-w-full leading-normal">
+              <thead>
+                <tr className="bg-gray-100 text-gray-800 uppercase text-xs font-semibold">
+                  <th className="px-5 py-3 border-b text-left">Scholarship</th>
+                  <th className="px-5 py-3 border-b text-left">University</th>
+                  <th className="px-5 py-3 border-b text-left">
+                    University Image
+                  </th>
+                  <th className="px-5 py-3 border-b text-left">Address</th>
+                  <th className="px-5 py-3 border-b text-left">Category</th>
+                  <th className="px-5 py-3 border-b text-left">Fees</th>
+                  <th className="px-5 py-3 border-b text-left">Status</th>
+                  <th className="px-5 py-3 border-b text-left">Feedback</th>
+                  <th className="px-5 py-3 border-b text-left">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {applications.map((application) => (
+                  <StudentApplicationDataRow
+                    key={application._id}
+                    application={application}
+                    onReview={() => openReviewModal(application)}
+                  />
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
-    </>
+
+      {/* রিভিউ মোডাল */}
+      {selectedApplication && (
+        <AddReviewModal
+          isOpen={isReviewModalOpen}
+          closeModal={() => setIsReviewModalOpen(false)}
+          application={selectedApplication}
+        />
+      )}
+    </div>
   );
 };
 
