@@ -6,13 +6,16 @@ import Swal from "sweetalert2";
 import toast from "react-hot-toast";
 
 const ManageScholarships = () => {
+  const { user } = useAuth(); // Get the current logged-in user
   const axiosSecure = useAxiosSecure();
   const queryClient = useQueryClient();
+
   const { data: scholarships = [], isLoading } = useQuery({
-    queryKey: ["all-scholarships"],
+    queryKey: ["my-scholarships", user?.email],
+    enabled: !!user?.email,
     queryFn: async () => {
       const { data } = await axiosSecure.get(
-        "https://serverside11.vercel.app/scholarship"
+        `https://serverside11.vercel.app/scholarship?email=${user?.email}`
       );
       return data;
     },
