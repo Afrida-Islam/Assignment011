@@ -18,6 +18,8 @@ import MyReviews from "../Pages/Student Dashboard/MyReviews";
 import Analytics from "../Pages/Admin Dashboard/Analytics";
 import ManageApplications from "../Pages/TableRows/Moderator Dashboard/ManageApplications";
 import AllReviews from "../Pages/TableRows/Moderator Dashboard/AllReviews";
+import About from "../Components/About";
+import Contact from "../Components/Contact";
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -27,6 +29,14 @@ export const router = createBrowserRouter([
       {
         path: "/",
         Component: Home,
+      },
+      {
+        path: "/contact",
+        Component: Contact,
+      },
+      {
+        path: "/about",
+        Component: About,
       },
       {
         path: "/login",

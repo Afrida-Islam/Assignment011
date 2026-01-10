@@ -80,7 +80,6 @@ const Navbar = () => {
                 {isOpen && (
                   <div className="absolute rounded-xl shadow-2xl w-[65vw] md:w-[25vw] bg-white overflow-hidden right-0 top-14 md:top-16 text-base border-[1px] border-neutral-100 py-3">
                     <div className="flex flex-col cursor-pointer">
-                      {/* মোবাইল ও ছোট ট্যাবলেটে মেনু আইটেমগুলো এখানে দেখা যাবে */}
                       <div className="lg:hidden flex flex-col">
                         <Link
                           to="/"

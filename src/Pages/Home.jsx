@@ -6,6 +6,7 @@ import Allscholarship from "../Components/Allscholarship";
 import About from "../Components/About";
 import SuccessStories from "../Components/SuccessStories";
 import ScholarshipBlogs from "../Components/ScholarshipBlogs";
+import Contact from "../Components/Contact";
 const Home = () => {
   return (
     <div>
@@ -15,6 +16,7 @@ const Home = () => {
       <SuccessStories></SuccessStories>
       <ScholarshipBlogs></ScholarshipBlogs>
       <About></About>
+      <Contact></Contact>
     </div>
   );
 };
