@@ -1,8 +1,12 @@
 import React from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
-// HiOutlineLock এর বদলে HiOutlineLockClosed ব্যবহার করা হয়েছে
-import { HiOutlineUser, HiOutlineMail, HiCloudUpload } from "react-icons/hi";
+import {
+  HiOutlineUser,
+  HiOutlineMail,
+  HiCloudUpload,
+  HiOutlineUserGroup,
+} from "react-icons/hi";
 import { HiOutlineLockClosed } from "react-icons/hi2";
 import useAuth from "../hooks/useAuth";
 import { toast } from "react-hot-toast";
@@ -24,10 +28,14 @@ const Register = () => {
     formState: { errors },
     reset,
     setValue,
-  } = useForm();
+  } = useForm({
+    defaultValues: {
+      role: "student", // ডিফল্ট রোল
+    },
+  });
 
   const onSubmit = async (data) => {
-    const { name, image, email, password } = data;
+    const { name, image, email, password, role } = data;
     const imageFile = image[0];
 
     try {
@@ -36,14 +44,15 @@ const Register = () => {
       const imageURL = await imageUpload(imageFile);
       await updateUserProfile(name, imageURL);
 
+      // এখানে role পাঠানো হচ্ছে ডেটাবেজে সেভ করার জন্য
       await saveOrUpdateUser(
-        { name, email, image: imageURL },
+        { name, email, image: imageURL, role },
         user.accessToken
       );
 
       reset();
       navigate(from, { replace: true });
-      toast.success("Welcome! Registration Successful");
+      toast.success(`Welcome ${name}! Registered as ${role}`);
     } catch (err) {
       console.error(err);
       toast.error(err.message || "Registration failed");
@@ -53,10 +62,12 @@ const Register = () => {
   const handleGoogleSignIn = async () => {
     try {
       const { user } = await signInWithGoogle();
+      // সোশ্যাল লগইনে ডিফল্টভাবে রোল 'student' সেট করা হচ্ছে
       await saveOrUpdateUser({
         name: user?.displayName,
         email: user?.email,
         image: user?.photoURL,
+        role: "student",
       });
       navigate(from, { replace: true });
       toast.success("Signup Successful with Google");
@@ -66,10 +77,11 @@ const Register = () => {
   };
 
   const fillDemoData = () => {
-    setValue("name", "John Doe");
-    setValue("email", "student@demo.com");
+    setValue("name", "Scholar Candidate");
+    setValue("email", "student@nst.com");
     setValue("password", "123456");
-    toast.success("Demo details filled! Now upload an image.");
+    setValue("role", "student");
+    toast.success("Demo data filled!");
   };
 
   return (
@@ -82,13 +94,13 @@ const Register = () => {
               Join National Scholarship Trust
             </h2>
             <p className="text-green-100 text-lg mb-8 leading-relaxed">
-              Unlock your future. Access thousands of scholarship opportunities
-              with one account.
+              Start your journey today. Access thousands of scholarships as a
+              Student, Moderator, or Admin.
             </p>
             <div className="hidden lg:block">
               <img
                 src="https://cdni.iconscout.com/illustration/premium/thumb/student-registration-illustration-download-in-svg-png-gif-file-formats--form-school-university-pack-people-illustrations-5240416.png"
-                alt="Registration Illustration"
+                alt="Registration"
                 className="w-80 opacity-90"
               />
             </div>
@@ -101,11 +113,11 @@ const Register = () => {
                 Create Account
               </h1>
               <p className="text-gray-500 mt-2 font-medium">
-                Join our community of scholars
+                Select your role and get started
               </p>
             </div>
 
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               {/* Name */}
               <div className="relative">
                 <label className="text-sm font-bold text-gray-700 ml-1">
@@ -117,7 +129,7 @@ const Register = () => {
                   </span>
                   <input
                     type="text"
-                    placeholder="Enter full name"
+                    placeholder="John Doe"
                     className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 outline-none transition"
                     {...register("name", { required: "Name is required" })}
                   />
@@ -152,12 +164,32 @@ const Register = () => {
                 )}
               </div>
 
+              {/* Role Selection Dropdown */}
+              <div className="relative">
+                <label className="text-sm font-bold text-gray-700 ml-1">
+                  Account Role
+                </label>
+                <div className="mt-1 relative">
+                  <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
+                    <HiOutlineUserGroup />
+                  </span>
+                  <select
+                    className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 outline-none transition appearance-none"
+                    {...register("role", { required: "Role is required" })}
+                  >
+                    <option value="student">Student</option>
+                    <option value="moderator">Moderator</option>
+                    <option value="admin">Admin</option>
+                  </select>
+                </div>
+              </div>
+
               {/* Profile Image */}
               <div className="flex flex-col gap-1">
                 <label className="text-sm font-bold text-gray-700 ml-1">
                   Profile Photo
                 </label>
-                <label className="flex items-center gap-4 p-4 bg-green-50 border-2 border-dashed border-green-200 rounded-xl cursor-pointer hover:bg-green-100 transition">
+                <label className="flex items-center gap-4 p-3 bg-green-50 border-2 border-dashed border-green-200 rounded-xl cursor-pointer hover:bg-green-100 transition">
                   <HiCloudUpload className="text-2xl text-green-700" />
                   <span className="text-sm text-green-800 font-semibold">
                     Upload Photo
@@ -189,8 +221,8 @@ const Register = () => {
                     placeholder="••••••••"
                     className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 outline-none transition"
                     {...register("password", {
-                      required: "Password is required",
-                      minLength: { value: 6, message: "Minimum 6 characters" },
+                      required: "Required",
+                      minLength: { value: 6, message: "Min 6 characters" },
                     })}
                   />
                 </div>
@@ -201,12 +233,12 @@ const Register = () => {
                 )}
               </div>
 
-              {/* Buttons */}
+              {/* Submit Buttons */}
               <div className="pt-2 flex flex-col gap-3">
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-green-800 text-white py-3.5 rounded-xl font-bold hover:bg-green-900 transition-all shadow-lg disabled:bg-gray-400"
+                  className="w-full bg-green-800 text-white py-3.5 rounded-xl font-bold hover:bg-green-900 transition-all shadow-lg"
                 >
                   {loading ? (
                     <TbFidgetSpinner className="animate-spin m-auto" />
@@ -214,7 +246,6 @@ const Register = () => {
                     "Sign Up"
                   )}
                 </button>
-
                 <button
                   type="button"
                   onClick={fillDemoData}
@@ -226,20 +257,13 @@ const Register = () => {
             </form>
 
             <div className="mt-6">
-              <div className="flex items-center gap-4 mb-4 text-gray-400 text-xs font-bold uppercase tracking-widest">
-                <div className="h-px bg-gray-200 flex-1"></div>
-                <span>Or connect with</span>
-                <div className="h-px bg-gray-200 flex-1"></div>
-              </div>
-
               <button
                 onClick={handleGoogleSignIn}
                 className="w-full flex justify-center items-center gap-3 border-2 border-gray-100 py-3 rounded-xl hover:bg-gray-50 transition font-bold text-gray-700"
               >
                 <FcGoogle size={24} /> Google
               </button>
-
-              <p className="mt-8 text-center text-gray-500 font-medium">
+              <p className="mt-6 text-center text-gray-500 font-medium">
                 Already registered?{" "}
                 <Link
                   to="/login"

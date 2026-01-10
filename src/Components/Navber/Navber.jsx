@@ -119,12 +119,12 @@ const Navbar = () => {
                           >
                             Dashboard
                           </Link>
-                          <Link
+                          {/* <Link
                             to="/dashboard/my-applications"
                             className="px-6 py-3 hover:bg-neutral-100 transition text-lg font-semibold"
                           >
                             My Applications
-                          </Link>
+                          </Link> */}
                           <Link
                             to="/dashboard/profile"
                             className="px-6 py-3 hover:bg-neutral-100 transition text-lg font-semibold"
