@@ -1,11 +1,11 @@
 import { useLoaderData } from "react-router";
 import { ScholarshipCard } from "../Components/ScholarshipCard";
 import { useState } from "react";
+import useAxiosSecure from "../hooks/useAxiosSecure";
 
 const Allscholarship = () => {
-  const data = useLoaderData();
-  console.log(data);
   const initialData = useLoaderData();
+  const axiosSecure = useAxiosSecure();
 
   const [models, setModels] = useState(
     Array.isArray(initialData) ? initialData : []
@@ -15,25 +15,16 @@ const Allscholarship = () => {
   const handleSearch = (e) => {
     e.preventDefault();
     const category = e.target.search.value;
-    console.log(`Searching for: ${category}`);
     setLoading(true);
     setModels([]);
-    fetch(
-      `https://assignment010serverside.vercel.app/search?search=${category}`
-    )
+    axiosSecure
+      .get(`/search?search=${category}`)
       .then((res) => {
-        if (!res.ok) {
-          throw new Error(`HTTP error! status: ${res.status}`);
-        }
-        return res.json();
-      })
-      .then((data) => {
-        setModels(Array.isArray(data) ? data : []);
+        setModels(Array.isArray(res.data) ? res.data : []);
         setLoading(false);
       })
       .catch((error) => {
         console.error("Fetch error during search:", error);
-
         setModels([]);
         setLoading(false);
       });

@@ -52,14 +52,28 @@ const AuthProvider = ({ children }) => {
   };
 
   // Monitor Auth State Change
+ // Monitor Auth State Change
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       console.log("CurrentUser-->", currentUser?.email);
-      setUser(currentUser);
+      
+      if (currentUser) {
+        // ১. Firebase থেকে বর্তমান ইউজারের টোকেনটি নিন
+        const token = await currentUser.getIdToken();
+        
+        // ২. টোকেনটি localStorage-এ সেভ করুন
+        localStorage.setItem("access-token", token);
+        
+        setUser(currentUser);
+      } else {
+        // ৩. ইউজার লগআউট করলে টোকেনটি রিমুভ করে দিন
+        localStorage.removeItem("access-token");
+        setUser(null);
+      }
+      
       setLoading(false);
     });
 
-    // Cleanup function
     return () => unsubscribe();
   }, []);
 

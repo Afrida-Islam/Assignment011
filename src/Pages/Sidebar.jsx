@@ -50,9 +50,9 @@ const Sidebar = () => {
 
           <nav className="mt-6">
             {/* Common Menu: Statistics */}
-            <Link to="/">
-              <MenuItem icon={BsGraphUp} label="Dashboard Home" address="/" />
-            </Link>
+
+            <MenuItem icon={BsGraphUp} label="Dashboard Home" address="/" />
+
             {/* Role Based Menus */}
             {role === "Admin" && <AdminMenu />}
             {role === "Moderator" && <ModeratorMenu />}
