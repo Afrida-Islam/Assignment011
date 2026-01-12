@@ -11,8 +11,9 @@ const DashboardLayout = () => {
       {/* ডান পাশে মূল কন্টেন্ট এরিয়া */}
       <div className="flex-1 md:ml-64 bg-gray-50 min-h-screen">
         <div className="p-5">
-          <DashboardHome />
+          
           <Outlet />
+          <DashboardHome />
         </div>
       </div>
     </div>
